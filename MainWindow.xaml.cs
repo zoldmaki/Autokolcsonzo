@@ -26,6 +26,7 @@ public partial class MainWindow : Window
 
         VarosokBetoltese();
         TipusokBetoltese();
+        AutokBetoltese();
     }
 
     private bool MentesBiztonsagosan(AutoKolcsonzoContext context, string mit)
@@ -43,6 +44,12 @@ public partial class MainWindow : Window
             MessageBox.Show(uzenet, "Mentési hiba");
             return false;
         }
+    }
+
+    private static bool SorraKattintottak(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is not DependencyObject forras) return false;
+        return ItemsControl.ContainerFromElement((DataGrid)sender, forras) is DataGridRow;
     }
 
     // ---------- VÁROSOK ----------
@@ -87,9 +94,7 @@ public partial class MainWindow : Window
 
     private void VarosDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        var dataGrid = (DataGrid)sender;
-        if (dataGrid.SelectedIndex == -1)
-            return;
+        if (!SorraKattintottak(sender, e)) return;
         VarosSzerkesztese();
     }
 
@@ -189,9 +194,7 @@ public partial class MainWindow : Window
 
     private void TipusDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        var dataGrid = (DataGrid)sender;
-        if (dataGrid.SelectedIndex == -1)
-            return;
+        if (!SorraKattintottak(sender, e)) return;
         TipusSzerkesztese();
     }
 
@@ -240,7 +243,107 @@ public partial class MainWindow : Window
             if (!MentesBiztonsagosan(context, "típus")) return;
         }
         TipusokBetoltese();
+    }
 
 
+
+    // ---------- AUTÓK ----------
+
+    private void AutokBetoltese()
+    {
+        using var context = new AutoKolcsonzoContext();
+
+        string marka = AutoMarkaFilterTextBox.Text.Trim();
+        string modell = AutoModellFilterTextBox.Text.Trim();
+        string maxArSzoveg = AutoMaxArFilterTextBox.Text.Trim();
+        
+        IQueryable<Auto> lekerdezes = context.Autok
+            .Include(a => a.Tipus)
+            .Include(a => a.Berlesek);
+
+        if (marka != "")
+            lekerdezes = lekerdezes.Where(a => a.Tipus.Marka.Contains(marka));
+        if (modell != "")
+            lekerdezes = lekerdezes.Where(a => a.Tipus.Modell.Contains(modell));
+        if (int.TryParse(maxArSzoveg, out int maxAr))
+            lekerdezes = lekerdezes.Where(a => a.NapiAr <= maxAr);
+
+        AutoDataGrid.ItemsSource = lekerdezes.OrderBy(a => a.AutoId).ToList();
+    }
+
+    private void AutoFilter_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        AutokBetoltese();
+    }
+
+    private void UjAuto_Click(object sender, RoutedEventArgs e)
+    {
+        var ablak = new AutoWindow() { Owner = this };
+        if (ablak.ShowDialog() == true)
+        {
+            using var context = new AutoKolcsonzoContext();
+            context.Autok.Add(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "autó")) return;
+            AutokBetoltese();
+        }
+    }
+
+    private void SzerkesztAuto_Click(object sender, RoutedEventArgs e)
+    {
+        AutoSzerkesztese();
+    }
+
+    private void AutoDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (!SorraKattintottak(sender, e)) return;
+        AutoSzerkesztese();
+    }
+
+    private void AutoSzerkesztese()
+    {
+        if (AutoDataGrid.SelectedItem is not Auto kivalasztott)
+        {
+            MessageBox.Show("Válasszon ki egy autót!", "Nincs kijelölés");
+            return;
+        }
+
+        var ablak = new AutoWindow(kivalasztott) { Owner = this };
+        if (ablak.ShowDialog() == true)
+        {
+            using var context = new AutoKolcsonzoContext();
+            context.Autok.Update(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "autó")) return;
+            AutokBetoltese();
+        }
+    }
+
+    private void TorolAuto_Click(object sender, RoutedEventArgs e)
+    {
+        if (AutoDataGrid.SelectedItem is not Auto kivalasztott)
+        {
+            MessageBox.Show("Válasszon ki egy autót!", "Nincs kijelölés");
+            return;
+        }
+
+        if (kivalasztott.Berlesek.Count > 0)
+        {
+            MessageBox.Show($"Az autóhoz {kivalasztott.Berlesek.Count} bérlés tartozik, ezért nem törölhető.\n\nElőbb törölje a hozzá tartozó bérléseket.",
+                            "A törlés nem lehetséges");
+            return;
+        }
+
+        if (MessageBox.Show($"Biztosan törli a(z) {kivalasztott.Tipus.Marka} {kivalasztott.Tipus.Modell} autót (azonosító: {kivalasztott.AutoId})?",
+                "Törlés megerősítése", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+
+        using var context = new AutoKolcsonzoContext();
+        var torlendo = context.Autok.Find(kivalasztott.AutoId);
+        if (torlendo != null)
+        {
+            context.Autok.Remove(torlendo);
+            if (!MentesBiztonsagosan(context, "autó")) return;
+        }
+        AutokBetoltese();
     }
 }

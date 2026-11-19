@@ -90,7 +90,51 @@
                 </StackPanel>
             </Grid>
         </TabItem>
-        <!-- The other tabs (Autók, Bérlők, Bérlések) will be added here later -->
+
+        <TabItem Header="Autók">
+            <Grid Margin="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Márka:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="AutoMarkaFilterTextBox" Width="120" Margin="0,0,16,0"
+                     TextChanged="AutoFilter_Changed"/>
+                    <TextBlock Text="Modell:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="AutoModellFilterTextBox" Width="120" Margin="0,0,16,0"
+                     TextChanged="AutoFilter_Changed"/>
+                    <TextBlock Text="Max. napi ár (Ft):" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="AutoMaxArFilterTextBox" Width="90"
+                     TextChanged="AutoFilter_Changed"/>
+                </StackPanel>
+
+                <DataGrid x:Name="AutoDataGrid" Grid.Row="1"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectionMode="Single" CanUserAddRows="False"
+                  MouseDoubleClick="AutoDataGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Azonosító" Binding="{Binding AutoId}"/>
+                        <DataGridTextColumn Header="Márka"     Binding="{Binding Tipus.Marka}" Width="*"/>
+                        <DataGridTextColumn Header="Modell"    Binding="{Binding Tipus.Modell}" Width="*"/>
+                        <DataGridTextColumn Header="Évjárat"   Binding="{Binding Tipus.Evjarat}"/>
+                        <DataGridTextColumn Header="Alap km"   Binding="{Binding AlapKm, StringFormat=N0, ConverterCulture=hu-HU}"/>
+                        <DataGridTextColumn Header="Megtett km" Binding="{Binding MegtettKm, StringFormat=N0, ConverterCulture=hu-HU}"/>
+                        <DataGridTextColumn Header="Napi ár (Ft)" Binding="{Binding NapiAr, StringFormat=N0, ConverterCulture=hu-HU}"/>
+                        <DataGridTextColumn Header="Bérlések" Binding="{Binding Berlesek.Count}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="Új" Width="90" Margin="0,0,8,0" Click="UjAuto_Click"/>
+                    <Button Content="Szerkesztés" Width="90" Margin="0,0,8,0" Click="SzerkesztAuto_Click"/>
+                    <Button Content="Törlés" Width="90" Click="TorolAuto_Click"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+        <!-- The other tabs (Bérlők, Bérlések) will be added here later -->
 
     </TabControl>
 </Window>
