@@ -33,7 +33,7 @@ public class AutoKolcsonzoContext : DbContext
         
         modelBuilder.Entity<Berles>().Property(b => b.KezdoDatum).HasColumnType("date").IsRequired();
         modelBuilder.Entity<Berles>().Property(b => b.VegDatum).HasColumnType("date");
-        modelBuilder.Entity<Berles>().Property(b => b.Szamla).IsRequired().HasMaxLength(20);
+        modelBuilder.Entity<Berles>().Property(b => b.Szamla).IsRequired().HasMaxLength(40);
         modelBuilder.Entity<Berles>().HasIndex(b => b.Szamla).IsUnique();
 
         modelBuilder.Entity<Berles>().HasOne(b => b.Auto).WithMany(a => a.Berlesek)
@@ -44,8 +44,8 @@ public class AutoKolcsonzoContext : DbContext
 
         modelBuilder.Entity<Berlo>().Property(b => b.SzulDatum).HasColumnType("date");
         modelBuilder.Entity<Berlo>().Property(b => b.Nev).IsRequired().HasMaxLength(40);
-        modelBuilder.Entity<Berlo>().Property(b => b.UtcaNev).HasMaxLength(25);       
-        modelBuilder.Entity<Berlo>().Property(b => b.HazSzam).HasMaxLength(8);
+        modelBuilder.Entity<Berlo>().Property(b => b.UtcaNev).HasMaxLength(40);       
+        modelBuilder.Entity<Berlo>().Property(b => b.HazSzam).HasMaxLength(10);
 
         modelBuilder.Entity<Berlo>().HasOne(b => b.Varos).WithMany(v => v.Berlok)
             .HasForeignKey(b => b.VarosId).OnDelete(DeleteBehavior.SetNull);
@@ -53,8 +53,8 @@ public class AutoKolcsonzoContext : DbContext
 
         modelBuilder.Entity<Varos>().Property(v => v.IranySzam).HasMaxLength(10);
         modelBuilder.Entity<Varos>().HasIndex(v => v.IranySzam).IsUnique();
-        modelBuilder.Entity<Varos>().Property(v => v.Nev).IsRequired().HasMaxLength(25);
-        modelBuilder.Entity<Varos>().Property(v => v.Megye).IsRequired().HasMaxLength(20);        
+        modelBuilder.Entity<Varos>().Property(v => v.Nev).IsRequired().HasMaxLength(40);
+        modelBuilder.Entity<Varos>().Property(v => v.Megye).IsRequired().HasMaxLength(40);        
 
         modelBuilder.Entity<Auto>().Property(a => a.NapiAr).IsRequired();
         modelBuilder.Entity<Auto>().Property(a => a.TipusId).IsRequired();
@@ -64,10 +64,10 @@ public class AutoKolcsonzoContext : DbContext
             .HasForeignKey(a => a.TipusId).OnDelete(DeleteBehavior.Restrict);
 
 
-        modelBuilder.Entity<Tipus>().Property(t => t.Marka).IsRequired().HasMaxLength(20);
-        modelBuilder.Entity<Tipus>().Property(t => t.Modell).IsRequired().HasMaxLength(20);
+        modelBuilder.Entity<Tipus>().Property(t => t.Marka).IsRequired().HasMaxLength(40);
+        modelBuilder.Entity<Tipus>().Property(t => t.Modell).IsRequired().HasMaxLength(40);
         modelBuilder.Entity<Tipus>().Property(t => t.Evjarat).IsRequired();
         modelBuilder.Entity<Tipus>().Property(t => t.Fogyasztas).IsRequired();
-        modelBuilder.Entity<Tipus>().Property(t => t.Uzemanyag).IsRequired().HasMaxLength(10);
+        modelBuilder.Entity<Tipus>().Property(t => t.Uzemanyag).IsRequired().HasMaxLength(20);
     }
 }

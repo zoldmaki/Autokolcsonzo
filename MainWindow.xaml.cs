@@ -21,7 +21,28 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        TipusUzemanyagFilterComboBox.ItemsSource = new[] { "Összes" }.Concat(Tipus.Uzemanyagok).ToList();
+        TipusUzemanyagFilterComboBox.SelectedIndex = 0;
+
         VarosokBetoltese();
+        TipusokBetoltese();
+    }
+
+    private bool MentesBiztonsagosan(AutoKolcsonzoContext context, string mit)
+    {
+        try
+        {
+            context.SaveChanges();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            string uzenet = $"Hiba történt a(z) {mit} mentésekor:\n{ex.Message}";
+            if (ex.InnerException != null)
+                uzenet += $"\n\nRészletek: {ex.InnerException.Message}";   // one box instead of two
+            MessageBox.Show(uzenet, "Mentési hiba");
+            return false;
+        }
     }
 
     // ---------- VÁROSOK ----------
@@ -54,7 +75,7 @@ public partial class MainWindow : Window
         {
             using var context = new AutoKolcsonzoContext();
             context.Varosok.Add(ablak.Eredmeny);
-            context.SaveChanges();
+            if (!MentesBiztonsagosan(context, "város")) return;
             VarosokBetoltese();
         }
     }
@@ -84,8 +105,8 @@ public partial class MainWindow : Window
         if (ablak.ShowDialog() == true)
         {
             using var context = new AutoKolcsonzoContext();
-            context.Varosok.Update(ablak.Eredmeny);
-            context.SaveChanges();
+            context.Varosok.Add(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "város")) return;
             VarosokBetoltese();
         }
     }
@@ -109,10 +130,117 @@ public partial class MainWindow : Window
         using var context = new AutoKolcsonzoContext();
         var torlendo = context.Varosok.Find(kivalasztott.VarosId);
         if (torlendo != null)
-        {
+        {            
             context.Varosok.Remove(torlendo);
-            context.SaveChanges();
+            if (!MentesBiztonsagosan(context, "város")) return;
         }
         VarosokBetoltese();
+    }
+
+
+
+
+
+
+    // ---------- TÍPUSOK ----------
+
+    private void TipusokBetoltese()
+    {
+        using var context = new AutoKolcsonzoContext();
+
+        string marka = TipusMarkaFilterTextBox.Text.Trim();
+        string modell = TipusModellFilterTextBox.Text.Trim();
+        string? uzemanyag = TipusUzemanyagFilterComboBox.SelectedItem as string;
+
+        IQueryable<Tipus> lekerdezes = context.Tipusok.Include(t => t.Autok);
+
+        if (marka != "")
+            lekerdezes = lekerdezes.Where(t => t.Marka.Contains(marka));
+        if (modell != "")
+            lekerdezes = lekerdezes.Where(t => t.Modell.Contains(modell));
+        if (uzemanyag != null && uzemanyag != "Összes")
+            lekerdezes = lekerdezes.Where(t => t.Uzemanyag == uzemanyag);
+
+        TipusDataGrid.ItemsSource = lekerdezes.OrderBy(t => t.TipusId).ToList();
+    }
+    
+    private void TipusFilter_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        TipusokBetoltese();
+    }
+
+    private void UjTipus_Click(object sender, RoutedEventArgs e)
+    {
+        var ablak = new TipusWindow() { Owner = this };
+        if (ablak.ShowDialog() == true)
+        {
+            using var context = new AutoKolcsonzoContext();
+            context.Tipusok.Add(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "típus")) return;
+            TipusokBetoltese();
+        }
+    }
+
+    private void SzerkesztTipus_Click(object sender, RoutedEventArgs e)
+    {
+        TipusSzerkesztese();
+    }
+
+    private void TipusDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        var dataGrid = (DataGrid)sender;
+        if (dataGrid.SelectedIndex == -1)
+            return;
+        TipusSzerkesztese();
+    }
+
+    private void TipusSzerkesztese()
+    {
+        if (TipusDataGrid.SelectedItem is not Tipus kivalasztott)
+        {
+            MessageBox.Show("Válasszon ki egy típust!", "Nincs kijelölés");
+            return;
+        }
+
+        var ablak = new TipusWindow(kivalasztott) { Owner = this };
+        if (ablak.ShowDialog() == true)
+        {
+            using var context = new AutoKolcsonzoContext();
+            context.Tipusok.Add(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "típus")) return;
+            TipusokBetoltese();
+        }
+    }
+
+    private void TorolTipus_Click(object sender, RoutedEventArgs e)
+    {
+        if (TipusDataGrid.SelectedItem is not Tipus kivalasztott)
+        {
+            MessageBox.Show("Válasszon ki egy típust!", "Nincs kijelölés");
+            return;
+        }
+        
+        if (kivalasztott.Autok.Count > 0)
+        {
+            MessageBox.Show($"A(z) {kivalasztott.Marka} {kivalasztott.Modell} típushoz még {kivalasztott.Autok.Count} autó tartozik, ezért nem törölhető.\n\nElőbb törölje vagy módosítsa a hozzá tartozó autókat.",
+                            "A törlés nem lehetséges");
+            return;
+        }
+
+        if (MessageBox.Show($"Biztosan törli a(z) {kivalasztott.Marka} {kivalasztott.Modell} típust?",
+                "Törlés megerősítése", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+
+        using var context = new AutoKolcsonzoContext();
+        var torlendo = context.Tipusok.Find(kivalasztott.TipusId);
+        if (torlendo != null)
+        {
+            context.Tipusok.Remove(torlendo);
+            if (!MentesBiztonsagosan(context, "típus")) return;
+        }
+        TipusokBetoltese();
+
+
     }
 }

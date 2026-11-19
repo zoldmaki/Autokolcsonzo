@@ -12,6 +12,6 @@ public class Tipus
     public string Modell { get; set; } = "";
     public double Fogyasztas { get; set; }
     public string Uzemanyag { get; set; } = "";
-
+    public static readonly string[] Uzemanyagok = { "Benzin", "Dízel", "Hibrid", "Elektromos" };
     public ICollection<Auto> Autok { get; set; } = new List<Auto>();
 }

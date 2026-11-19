@@ -9,23 +9,20 @@
             <Grid Margin="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <!-- filter bar -->
                     <RowDefinition Height="*"/>
-                    <!-- grid takes the remaining space -->
                     <RowDefinition Height="Auto"/>
-                    <!-- buttons -->
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8" HorizontalAlignment="Center" >
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8" >
                     <TextBlock Text="Szűrés:" VerticalAlignment="Center" Margin="0,0,15,0"/>
                     <TextBlock Text="Város:" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                    <TextBox x:Name="VarosNevFilterTextBox" Width="250" Margin="0,0,15,0"
+                    <TextBox x:Name="VarosNevFilterTextBox" Width="150" Margin="0,0,15,0"
                              TextChanged="VarosFilterTextBox_TextChanged"/>
                     <TextBlock Text="Irányítószám:" VerticalAlignment="Center" Margin="0,0,3,0"/>
                     <TextBox x:Name="VarosIranySzamFilterTextBox" Width="76" Margin="0,0,15,0"
                              TextChanged="VarosFilterTextBox_TextChanged"/>
                     <TextBlock Text="Megye:" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                    <TextBox x:Name="VarosMegyeFilterTextBox" Width="250"
+                    <TextBox x:Name="VarosMegyeFilterTextBox" Width="150"
                              TextChanged="VarosFilterTextBox_TextChanged"/>
                 </StackPanel>
 
@@ -50,8 +47,50 @@
                 </StackPanel>
             </Grid>
         </TabItem>
+        <TabItem Header="Típusok">
+            <Grid Margin="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <!-- The other tabs (Típusok, Autók, Bérlők, Bérlések) will be added here later -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Márka:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TipusMarkaFilterTextBox" Width="130" Margin="0,0,16,0"
+                     TextChanged="TipusFilter_Changed"/>
+                    <TextBlock Text="Modell:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TipusModellFilterTextBox" Width="130" Margin="0,0,16,0"
+                     TextChanged="TipusFilter_Changed"/>
+                    <TextBlock Text="Üzemanyag:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox x:Name="TipusUzemanyagFilterComboBox" Width="120"
+                      SelectionChanged="TipusFilter_Changed"/>
+                </StackPanel>
+
+                <DataGrid x:Name="TipusDataGrid" Grid.Row="1"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectionMode="Single" CanUserAddRows="False"
+                  MouseDoubleClick="TipusDataGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Azonosító" Binding="{Binding TipusId}"/>
+                        <DataGridTextColumn Header="Márka"     Binding="{Binding Marka}" Width="*"/>
+                        <DataGridTextColumn Header="Modell"    Binding="{Binding Modell}" Width="*"/>
+                        <DataGridTextColumn Header="Évjárat"   Binding="{Binding Evjarat}"/>
+                        <DataGridTextColumn Header="Fogyasztás (/100 km)"
+                                    Binding="{Binding Fogyasztas, StringFormat=N1, ConverterCulture=hu-HU}"/>
+                        <DataGridTextColumn Header="Üzemanyag" Binding="{Binding Uzemanyag}"/>
+                        <DataGridTextColumn Header="Autók száma" Binding="{Binding Autok.Count}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="Új" Width="90" Margin="0,0,8,0" Click="UjTipus_Click"/>
+                    <Button Content="Szerkesztés" Width="90" Margin="0,0,8,0" Click="SzerkesztTipus_Click"/>
+                    <Button Content="Törlés" Width="90" Click="TorolTipus_Click"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+        <!-- The other tabs (Autók, Bérlők, Bérlések) will be added here later -->
 
     </TabControl>
 </Window>
