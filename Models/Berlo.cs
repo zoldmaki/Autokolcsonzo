@@ -40,4 +40,11 @@ public class Berlo
             return $"A bérlőnek legalább {MinKor} évesnek kell lennie.";
         return null;
     }
+
+    public static int KorEgyNapon(DateTime szulDatum, DateTime nap)
+    {
+        int kor = nap.Year - szulDatum.Year;
+        if (szulDatum.Date > nap.AddYears(-kor)) kor--;   // birthday not reached yet that year
+        return kor;
+    }
 }

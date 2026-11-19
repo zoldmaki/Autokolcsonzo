@@ -20,4 +20,21 @@ public class Berles
 
     [NotMapped]
     public int? Hossz => VegDatum.HasValue ? (VegDatum.Value - KezdoDatum).Days : null;
+
+    public string? Ellenorzes()
+    {
+        if (VegDatum.HasValue && VegDatum.Value.Date < KezdoDatum.Date)
+            return "A vég dátum nem lehet a kezdő dátum előtt.";
+
+        if (Km.HasValue)
+        {
+            if (!VegDatum.HasValue)
+                return "Kilométer csak vég dátummal együtt adható meg.";
+            if (VegDatum.Value.Date > DateTime.Today)
+                return "Kilométer csak akkor adható meg, ha a vég dátum már elmúlt (vagy ma van).";
+            if (Km.Value < 0)
+                return "A kilométer nem lehet negatív.";
+        }
+        return null;
+    }
 }
