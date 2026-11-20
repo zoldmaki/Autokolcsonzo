@@ -11,7 +11,7 @@ public class Auto
     public int AlapKm { get; set; }              
     public int NapiAr { get; set; }
 
-    public int TipusId { get; set; }             
+    public int TipusId { get; set; }
     public Tipus Tipus { get; set; } = null!;
 
     public ICollection<Berles> Berlesek { get; set; } = new List<Berles>();
