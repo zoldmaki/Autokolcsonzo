@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Autokolcsonzo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Autókölcsönző" Height="550" Width="900">
+        Title="Autókölcsönző" Height="550" Width="1150">
 
     <TabControl Margin="8" SelectionChanged="FoTabControl_SelectionChanged">
 
@@ -176,7 +176,52 @@
                 </StackPanel>
             </Grid>
         </TabItem>
-        <!-- The other tabs ( Bérlések) will be added here later -->
+
+        <TabItem Header="Bérlések">
+            <Grid Margin="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Bérlő neve:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="BerlesBerloFilterTextBox" Width="140" Margin="0,0,16,0"
+                     TextChanged="BerlesFilter_Changed"/>
+                    <TextBlock Text="Autó (márka/modell):" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="BerlesAutoFilterTextBox" Width="140" Margin="0,0,16,0"
+                     TextChanged="BerlesFilter_Changed"/>
+                    <TextBlock Text="Állapot:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox x:Name="BerlesAllapotFilterComboBox" Width="110"
+                      SelectionChanged="BerlesFilter_Changed"/>
+                </StackPanel>
+
+                <DataGrid x:Name="BerlesDataGrid" Grid.Row="1"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectionMode="Single" CanUserAddRows="False"
+                  MouseDoubleClick="BerlesDataGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Számla"    Binding="{Binding Szamla}"/>
+                        <DataGridTextColumn Header="Bérlő"     Binding="{Binding Berlo.Nev}" Width="*"/>
+                        <DataGridTextColumn Header="Autó ID"   Binding="{Binding AutoId}"/>
+                        <DataGridTextColumn Header="Márka"     Binding="{Binding Auto.Tipus.Marka}"/>
+                        <DataGridTextColumn Header="Modell"    Binding="{Binding Auto.Tipus.Modell}"/>
+                        <DataGridTextColumn Header="Kezdő dátum" Binding="{Binding KezdoDatum, StringFormat=yyyy.MM.dd}"/>
+                        <DataGridTextColumn Header="Vég dátum"   Binding="{Binding VegDatum, StringFormat=yyyy.MM.dd}"/>
+                        <DataGridTextColumn Header="Km"        Binding="{Binding Km, StringFormat=N0, ConverterCulture=hu-HU}"/>
+                        <DataGridTextColumn Header="Hossz (nap)" Binding="{Binding Hossz}"/>
+                        <DataGridTextColumn Header="Állapot"   Binding="{Binding Allapot}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="Új" Width="90" Margin="0,0,8,0" Click="UjBerles_Click"/>
+                    <Button Content="Szerkesztés" Width="90" Margin="0,0,8,0" Click="SzerkesztBerles_Click"/>
+                    <Button Content="Törlés" Width="90" Click="TorolBerles_Click"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
 
     </TabControl>
 </Window>

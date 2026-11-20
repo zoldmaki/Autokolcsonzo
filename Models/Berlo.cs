@@ -44,7 +44,10 @@ public class Berlo
     public static int KorEgyNapon(DateTime szulDatum, DateTime nap)
     {
         int kor = nap.Year - szulDatum.Year;
-        if (szulDatum.Date > nap.AddYears(-kor)) kor--;   // birthday not reached yet that year
+        if (szulDatum.Date > nap.AddYears(-kor)) kor--;
         return kor;
     }
+
+    [NotMapped]
+    public string Megnevezes => $"{Nev} (#{BerloId}, {SzulDatum:yyyy.MM.dd})";
 }

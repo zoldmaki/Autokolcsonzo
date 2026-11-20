@@ -21,13 +21,18 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
         TipusUzemanyagFilterComboBox.ItemsSource = new[] { "Összes" }.Concat(Tipus.Uzemanyagok).ToList();
         TipusUzemanyagFilterComboBox.SelectedIndex = 0;
+
+        BerlesAllapotFilterComboBox.ItemsSource = new[] { "Összes", "Folyamatban", "Lezárt" };
+        BerlesAllapotFilterComboBox.SelectedIndex = 0;
 
         VarosokBetoltese();
         TipusokBetoltese();
         AutokBetoltese();
         BerlokBetoltese();
+        BerlesekBetoltese();
     }
 
     private void FoTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -38,6 +43,7 @@ public partial class MainWindow : Window
         TipusokBetoltese();
         AutokBetoltese();
         BerlokBetoltese();
+        BerlesekBetoltese();
     }
 
     private bool MentesBiztonsagosan(AutoKolcsonzoContext context, string mit)
@@ -459,5 +465,117 @@ public partial class MainWindow : Window
             if (!MentesBiztonsagosan(context, "bérlő")) return;
         }
         BerlokBetoltese();
+    }
+
+
+
+        // ---------- BÉRLÉSEK ----------
+
+private void BerlesekBetoltese()
+    {
+        using var context = new AutoKolcsonzoContext();
+
+        string berlo = BerlesBerloFilterTextBox.Text.Trim();
+        string auto = BerlesAutoFilterTextBox.Text.Trim();
+        string? allapot = BerlesAllapotFilterComboBox.SelectedItem as string;
+
+        IQueryable<Berles> lekerdezes = context.Berlesek
+            .Include(b => b.Berlo)
+            .Include(b => b.Auto).ThenInclude(a => a.Tipus);
+
+        if (berlo != "")
+            lekerdezes = lekerdezes.Where(b => b.Berlo.Nev.Contains(berlo));
+        if (auto != "")
+            lekerdezes = lekerdezes.Where(b => b.Auto.Tipus.Marka.Contains(auto)
+                                            || b.Auto.Tipus.Modell.Contains(auto));
+        if (allapot == "Folyamatban")
+            lekerdezes = lekerdezes.Where(b => b.VegDatum == null);
+        else if (allapot == "Lezárt")
+            lekerdezes = lekerdezes.Where(b => b.VegDatum != null);
+
+        BerlesDataGrid.ItemsSource = lekerdezes.OrderByDescending(b => b.KezdoDatum).ToList();
+    }
+
+    private void BerlesFilter_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        BerlesekBetoltese();
+    }
+
+    private void UjBerles_Click(object sender, RoutedEventArgs e)
+    {
+        var ablak = new BerlesWindow() { Owner = this };
+        if (ablak.ShowDialog() == true)
+        {
+            using var context = new AutoKolcsonzoContext();
+            ablak.Eredmeny.Szamla = SzamlaGenerator.Uj(context);
+            context.Berlesek.Add(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "bérlés")) return;
+            BerlesekBetoltese();
+        }
+    }
+
+    private void SzerkesztBerles_Click(object sender, RoutedEventArgs e)
+    {
+        BerlesSzerkesztese();
+    }
+
+    private void BerlesDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (!SorraKattintottak(sender, e)) return;
+        BerlesSzerkesztese();
+    }
+
+    private void BerlesSzerkesztese()
+    {
+        if (BerlesDataGrid.SelectedItem is not Berles kivalasztott)
+        {
+            MessageBox.Show("Válasszon ki egy bérlést!", "Nincs kijelölés");
+            return;
+        }
+
+        var ablak = new BerlesWindow(kivalasztott) { Owner = this };
+        if (ablak.ShowDialog() == true)
+        {
+            using var context = new AutoKolcsonzoContext();
+            context.Berlesek.Update(ablak.Eredmeny);
+            if (!MentesBiztonsagosan(context, "bérlés")) return;
+            BerlesekBetoltese();
+        }
+    }
+
+    private void TorolBerles_Click(object sender, RoutedEventArgs e)
+    {
+        if (BerlesDataGrid.SelectedItem is not Berles kivalasztott)
+        {
+            MessageBox.Show("Válasszon ki egy bérlést!", "Nincs kijelölés");
+            return;
+        }
+
+        using var context = new AutoKolcsonzoContext();
+
+        int darab = context.Berlesek.Count(b => b.BerloId == kivalasztott.BerloId);
+        if (darab <= 1)
+        {
+            MessageBox.Show($"Ez {kivalasztott.Berlo.Nev} egyetlen bérlése, ezért nem törölhető.\n\nHa a bérlőt is el szeretné távolítani, törölje a Bérlők fülön (ott a bérlései is törlődnek).",
+                            "A törlés nem lehetséges");
+            return;
+        }
+
+        string uzenet = $"Biztosan törli a(z) {kivalasztott.Szamla} számlájú bérlést?";
+        if (kivalasztott.Km.HasValue)
+            uzenet += $"\n\nA bérlés {kivalasztott.Km:N0} km-e kikerül az autó megtett kilométereiből.";
+
+        if (MessageBox.Show(uzenet, "Törlés megerősítése",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+
+        var torlendo = context.Berlesek.Find(kivalasztott.KezdoDatum, kivalasztott.AutoId, kivalasztott.BerloId);
+        if (torlendo != null)
+        {
+            context.Berlesek.Remove(torlendo);
+            if (!MentesBiztonsagosan(context, "bérlés")) return;
+        }
+        BerlesekBetoltese();
     }
 }

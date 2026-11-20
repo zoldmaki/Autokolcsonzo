@@ -37,4 +37,7 @@ public class Berles
         }
         return null;
     }
+
+    [NotMapped]
+    public string Allapot => VegDatum.HasValue ? "Lezárt" : "Folyamatban";
 }

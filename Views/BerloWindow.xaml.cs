@@ -147,6 +147,16 @@ public partial class BerloWindow : Window
                 return;
             }
 
+            using (var context = new AutoKolcsonzoContext())
+            {
+                string? utkozes = BerlesEllenorzo.UtkozesHiba(context, auto.AutoId, kezdo, vegDatum);
+                if (utkozes != null)
+                {
+                    MessageBox.Show(utkozes, "Foglalt autó");
+                    return;
+                }
+            }
+
             ElsoBerles = berles;
         }
 
