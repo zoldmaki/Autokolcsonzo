@@ -21,6 +21,9 @@ public class Berles
     [NotMapped]
     public int? Hossz => VegDatum.HasValue ? (VegDatum.Value - KezdoDatum).Days : null;
 
+    [NotMapped]
+    public int? Ar => Hossz.HasValue ? Hossz.Value * Auto.NapiAr : null;
+
     public string? Ellenorzes()
     {
         if (VegDatum.HasValue && VegDatum.Value.Date < KezdoDatum.Date)

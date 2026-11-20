@@ -204,6 +204,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Számla"    Binding="{Binding Szamla}"/>
                         <DataGridTextColumn Header="Bérlő"     Binding="{Binding Berlo.Nev}" Width="*"/>
+                        <DataGridTextColumn Header="Ár"        Binding="{Binding Ar, StringFormat=N0, ConverterCulture=hu-HU}"/>
                         <DataGridTextColumn Header="Autó ID"   Binding="{Binding AutoId}"/>
                         <DataGridTextColumn Header="Márka"     Binding="{Binding Auto.Tipus.Marka}"/>
                         <DataGridTextColumn Header="Modell"    Binding="{Binding Auto.Tipus.Modell}"/>
