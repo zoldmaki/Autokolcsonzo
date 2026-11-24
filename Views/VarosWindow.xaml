@@ -1,35 +1,32 @@
-﻿<Window x:Class="Autokolcsonzo.Views.VarosWindow"
+<Window x:Class="Autokolcsonzo.Views.VarosWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Autokolcsonzo"
-        Title="Város" Width="450" WindowStartupLocation="CenterOwner"
-        Style="{StaticResource DialogWindow}" local:App.Accent="{DynamicResource VarosAccent}">
+        Title="Város" Width="430" WindowStartupLocation="CenterOwner"
+        Style="{StaticResource DialogWindow}">
+    <StackPanel>
+        <TextBlock Text="Név" Style="{StaticResource DialogLabel}" Margin="0,0,0,5"/>
+        <TextBox x:Name="NevTextBox" AutomationProperties.Name="Név" Margin="0,0,0,12"/>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="124"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Irányítószám" Style="{StaticResource DialogLabel}" Margin="0,0,0,5"/>
+                <TextBox x:Name="IranySzamTextBox" AutomationProperties.Name="Irányítószám" MaxLength="4"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Megye" Style="{StaticResource DialogLabel}" Margin="0,0,0,5"/>
+                <TextBox x:Name="MegyeTextBox" AutomationProperties.Name="Megye"/>
+            </StackPanel>
+        </Grid>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Név:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-        <TextBox x:Name="NevTextBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"/>
-
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Irányítószám:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-        <TextBox x:Name="IranySzamTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" MaxLength="4"/>
-
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Megye:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-        <TextBox x:Name="MegyeTextBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"/>
-
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource DialogActions}">
-            <Button Content="Mégse" Style="{StaticResource QuietButton}" IsCancel="True"/>
-            <Button Content="Mentés" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+        <DockPanel Style="{StaticResource DialogActions}">
+            <Button DockPanel.Dock="Left" Content="Mégse" IsCancel="True"/>
+            <Button DockPanel.Dock="Right" Content="Mentés" Style="{StaticResource PrimaryButton}"
                     IsDefault="True" Click="Mentes_Click"/>
-        </StackPanel>
-    </Grid>
+        </DockPanel>
+    </StackPanel>
 </Window>

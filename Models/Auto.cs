@@ -20,5 +20,5 @@ public class Auto
     public long MegtettKm => AlapKm + Berlesek.Sum(b => (long)(b.Km ?? 0));
 
     [NotMapped]
-    public string Megnevezes => $"#{AutoId} – {Tipus?.Marka} {Tipus?.Modell}";
+    public string Megnevezes => $"#{AutoId} · {Tipus?.Marka} {Tipus?.Modell}";
 }

@@ -1,9 +1,9 @@
-﻿<Window x:Class="Autokolcsonzo.Views.AutoWindow"
+<Window x:Class="Autokolcsonzo.Views.AutoWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Autokolcsonzo"
+        xmlns:views="clr-namespace:Autokolcsonzo.Views"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Autó" Width="500" WindowStartupLocation="CenterOwner"
-        Style="{StaticResource DialogWindow}" local:App.Accent="{DynamicResource AutoAccent}">
+        Style="{StaticResource DialogWindow}">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="Típus:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-        <ComboBox x:Name="TipusComboBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
+        <views:StableComboBox x:Name="TipusComboBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
                   DisplayMemberPath="Megnevezes"/>
 
         <TextBlock Grid.Row="1" Text="Alap km:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
@@ -29,13 +29,14 @@
         <TextBox x:Name="NapiArTextBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"/>
 
         <TextBlock Grid.Row="3" Text="Megtett km:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-        <TextBlock x:Name="MegtettKmTextBlock" Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"
-                   TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Text="(az alap km és a bérlések km-einek összege)"/>
+        <TextBox x:Name="MegtettKmTextBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"
+                 Style="{StaticResource ReadOnlyField}" AutomationProperties.Name="Megtett km"
+                 Text="Alap km + a bérlések km-e"/>
 
-        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Style="{StaticResource DialogActions}">
-            <Button Content="Mégse" Style="{StaticResource QuietButton}" IsCancel="True"/>
-            <Button Content="Mentés" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+        <DockPanel Grid.Row="4" Grid.ColumnSpan="2" Style="{StaticResource DialogActions}">
+            <Button DockPanel.Dock="Left" Content="Mégse" IsCancel="True"/>
+            <Button DockPanel.Dock="Right" Content="Mentés" Style="{StaticResource PrimaryButton}"
                     IsDefault="True" Click="Mentes_Click"/>
-        </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

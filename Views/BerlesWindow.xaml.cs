@@ -49,18 +49,11 @@ public partial class BerlesWindow : Window
             AutoComboBox.IsEnabled = false;
             KezdoDatePicker.IsEnabled = false;
             ZarolasTextBlock.Visibility = Visibility.Visible;
-            SzamlaTextBlock.Text = meglevo.Szamla;
+            SzamlaTextBox.Text = meglevo.Szamla;
 
             VegDatePicker.SelectedDate = meglevo.VegDatum;
             if (meglevo.Km.HasValue) KmTextBox.Text = meglevo.Km.Value.ToString();
         }
-    }
-
-    private void VegDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-    {
-        bool lezart = VegDatePicker.SelectedDate is DateTime veg && veg.Date <= DateTime.Today;
-        KmTextBox.IsEnabled = lezart;
-        if (!lezart) KmTextBox.Text = "";
     }
 
     private void Mentes_Click(object sender, RoutedEventArgs e)

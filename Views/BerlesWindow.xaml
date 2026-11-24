@@ -1,9 +1,9 @@
-﻿<Window x:Class="Autokolcsonzo.Views.BerlesWindow"
+<Window x:Class="Autokolcsonzo.Views.BerlesWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Autokolcsonzo"
+        xmlns:views="clr-namespace:Autokolcsonzo.Views"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Bérlés" Width="520" WindowStartupLocation="CenterOwner"
-        Style="{StaticResource DialogWindow}" local:App.Accent="{DynamicResource BerlesAccent}">
+        Style="{StaticResource DialogWindow}">
 
     <StackPanel>
         <Grid>
@@ -21,11 +21,11 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="Bérlő:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-            <ComboBox x:Name="BerloComboBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
+            <views:StableComboBox x:Name="BerloComboBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
                       DisplayMemberPath="Megnevezes"/>
 
             <TextBlock Grid.Row="1" Text="Autó:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-            <ComboBox x:Name="AutoComboBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
+            <views:StableComboBox x:Name="AutoComboBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
                       DisplayMemberPath="Megnevezes"/>
 
             <TextBlock Grid.Row="2" Text="Kezdő dátum:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
@@ -33,26 +33,26 @@
 
             <TextBlock Grid.Row="3" Text="Vég dátum:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
             <DatePicker x:Name="VegDatePicker" Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"
-                        ToolTip="Hagyja üresen, ha a bérlés még tart"
-                        SelectedDateChanged="VegDatePicker_SelectedDateChanged"/>
+                        ToolTip="Hagyja üresen, ha a bérlés még tart"/>
 
             <TextBlock Grid.Row="4" Text="Megtett km:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-            <TextBox x:Name="KmTextBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,10" IsEnabled="False"
-                     ToolTip="Csak lezárult bérlésnél adható meg"/>
+            <TextBox x:Name="KmTextBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,10"
+                     ToolTip="A kilométer előre beírható. Mentéshez mai vagy korábbi vég dátum szükséges."/>
 
             <TextBlock Grid.Row="5" Text="Számla:" Style="{StaticResource DialogLabel}" Margin="0,0,12,10"/>
-            <TextBlock x:Name="SzamlaTextBlock" Grid.Row="5" Grid.Column="1" Margin="0,0,0,10"
-                       VerticalAlignment="Center" Text="(automatikusan generálódik)"/>
+            <TextBox x:Name="SzamlaTextBox" Grid.Row="5" Grid.Column="1" Margin="0,0,0,10"
+                     Style="{StaticResource ReadOnlyField}" AutomationProperties.Name="Számla"
+                     Text="Mentéskor generálódik"/>
         </Grid>
 
         <TextBlock x:Name="ZarolasTextBlock" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12"
                    Visibility="Collapsed"
                    Text="A bérlő, az autó és a kezdő dátum a bérlés azonosítója, ezért nem módosítható. Hibás adatnál törölje a bérlést, és vegye fel újra."/>
 
-        <StackPanel Style="{StaticResource DialogActions}">
-            <Button Content="Mégse" Style="{StaticResource QuietButton}" IsCancel="True"/>
-            <Button Content="Mentés" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+        <DockPanel Style="{StaticResource DialogActions}">
+            <Button DockPanel.Dock="Left" Content="Mégse" IsCancel="True"/>
+            <Button DockPanel.Dock="Right" Content="Mentés" Style="{StaticResource PrimaryButton}"
                     IsDefault="True" Click="Mentes_Click"/>
-        </StackPanel>
+        </DockPanel>
     </StackPanel>
 </Window>

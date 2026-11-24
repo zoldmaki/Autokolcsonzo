@@ -40,7 +40,7 @@ public partial class AutoWindow : Window
             Eredmeny = new Auto { AutoId = meglevo.AutoId };
             AlapKmTextBox.Text = meglevo.AlapKm.ToString();
             NapiArTextBox.Text = meglevo.NapiAr.ToString();
-            MegtettKmTextBlock.Text = $"{meglevo.MegtettKm:N0} km";
+            MegtettKmTextBox.Text = $"{meglevo.MegtettKm:N0} km";
             
             TipusComboBox.SelectedItem = ((IEnumerable<Tipus>)TipusComboBox.ItemsSource)
                 .FirstOrDefault(t => t.TipusId == meglevo.TipusId);

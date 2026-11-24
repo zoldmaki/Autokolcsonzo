@@ -63,13 +63,6 @@ public partial class BerloWindow : Window
         }
     }
 
-    private void ElsoVegDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-    {
-        bool lezart = ElsoVegDatePicker.SelectedDate is DateTime veg && veg.Date <= DateTime.Today;
-        ElsoKmTextBox.IsEnabled = lezart;
-        if (!lezart) ElsoKmTextBox.Text = "";
-    }
-
     private void Mentes_Click(object sender, RoutedEventArgs e)
     {
         if (SzulDatumPicker.SelectedDate is not DateTime szulDatum)
