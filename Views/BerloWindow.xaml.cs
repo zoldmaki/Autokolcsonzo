@@ -74,7 +74,7 @@ public partial class BerloWindow : Window
     {
         if (SzulDatumPicker.SelectedDate is not DateTime szulDatum)
         {
-            MessageBox.Show("A születési dátum megadása kötelező.", "Hibás adat");
+            App.Uzenet(this, "A születési dátum megadása kötelező.", "Hibás adat");
             return;
         }        
         string? utca = string.IsNullOrWhiteSpace(UtcaTextBox.Text) ? null : UtcaTextBox.Text.Trim();
@@ -91,18 +91,18 @@ public partial class BerloWindow : Window
         string? hiba = Eredmeny.Ellenorzes();
         if (hiba != null)
         {
-            MessageBox.Show(hiba, "Hibás adat");
+            App.Uzenet(this, hiba, "Hibás adat");
             return;
         }
 
         if (hazSzam != null && utca == null)
         {
-            MessageBox.Show("Házszám csak utcanévvel együtt adható meg.", "Hibás adat");
+            App.Uzenet(this, "Házszám csak utcanévvel együtt adható meg.", "Hibás adat");
             return;
         }
         if (utca != null && varosId == null)
         {
-            MessageBox.Show("Utcanév megadásához válasszon várost is.", "Hibás adat");
+            App.Uzenet(this, "Utcanév megadásához válasszon várost is.", "Hibás adat");
             return;
         }
 
@@ -110,18 +110,18 @@ public partial class BerloWindow : Window
         {
             if (ElsoAutoComboBox.SelectedItem is not Auto auto)
             {
-                MessageBox.Show("Új bérlőhöz meg kell adni az első bérlését is: válasszon autót!", "Hibás adat");
+                App.Uzenet(this, "Új bérlőhöz meg kell adni az első bérlését is: válasszon autót!", "Hibás adat");
                 return;
             }
             if (ElsoKezdoDatePicker.SelectedDate is not DateTime kezdo)
             {
-                MessageBox.Show("Adja meg a bérlés kezdő dátumát!", "Hibás adat");
+                App.Uzenet(this, "Adja meg a bérlés kezdő dátumát!", "Hibás adat");
                 return;
             }
 
             if (Berlo.KorEgyNapon(szulDatum, kezdo) < Berlo.MinKor)
             {
-                MessageBox.Show($"A bérlőnek a bérlés kezdetén legalább {Berlo.MinKor} évesnek kell lennie.", "Hibás adat");
+                App.Uzenet(this, $"A bérlőnek a bérlés kezdetén legalább {Berlo.MinKor} évesnek kell lennie.", "Hibás adat");
                 return;
             }
 
@@ -133,7 +133,7 @@ public partial class BerloWindow : Window
             {
                 if (!int.TryParse(kmSzoveg, out int kmErtek))
                 {
-                    MessageBox.Show("A kilométer egész szám kell legyen.", "Hibás adat");
+                    App.Uzenet(this, "A kilométer egész szám kell legyen.", "Hibás adat");
                     return;
                 }
                 km = kmErtek;
@@ -144,7 +144,7 @@ public partial class BerloWindow : Window
             string? berlesHiba = berles.Ellenorzes();
             if (berlesHiba != null)
             {
-                MessageBox.Show(berlesHiba, "Hibás adat");
+                App.Uzenet(this, berlesHiba, "Hibás adat");
                 return;
             }
 
@@ -153,7 +153,7 @@ public partial class BerloWindow : Window
                 string? utkozes = BerlesEllenorzo.UtkozesHiba(context, berles);
                 if (utkozes != null)
                 {
-                    MessageBox.Show(utkozes, "Foglalt autó");
+                    App.Uzenet(this, utkozes, "Foglalt autó");
                     return;
                 }
             }

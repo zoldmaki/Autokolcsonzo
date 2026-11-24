@@ -56,12 +56,12 @@ public partial class MainWindow : Window
         }
     }
 
-    private static void MentesiHibaMegjelenitese(string mit, Exception ex)
+    private void MentesiHibaMegjelenitese(string mit, Exception ex)
     {
         string uzenet = $"Hiba történt a(z) {mit} mentésekor:\n{ex.Message}";
         if (ex.InnerException != null)
             uzenet += $"\n\nRészletek: {ex.InnerException.Message}";
-        MessageBox.Show(uzenet, "Mentési hiba");
+        App.Uzenet(this, uzenet, "Mentési hiba");
     }
 
     private static bool SorraKattintottak(object sender, MouseButtonEventArgs e)
@@ -164,7 +164,7 @@ public partial class MainWindow : Window
     {
         if (VarosDataGrid.SelectedItem is not Varos kivalasztott)
         {
-            MessageBox.Show("Válasszon ki egy várost!", "Nincs kijelölés");
+            App.Uzenet(this, "Válasszon ki egy várost!", "Nincs kijelölés");
             return;
         }
 
@@ -190,7 +190,7 @@ public partial class MainWindow : Window
         if (kivalasztott.Berlok.Count > 0)
             uzenet += $"\n\n{kivalasztott.Berlok.Count} bérlő lakcíme elveszíti a városát (a bérlők megmaradnak).";
 
-        if (MessageBox.Show(uzenet, "Törlés megerősítése",
+        if (App.Uzenet(this, uzenet, "Törlés megerősítése",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             return;
 
@@ -265,7 +265,7 @@ public partial class MainWindow : Window
     {
         if (TipusDataGrid.SelectedItem is not Tipus kivalasztott)
         {
-            MessageBox.Show("Válasszon ki egy típust!", "Nincs kijelölés");
+            App.Uzenet(this, "Válasszon ki egy típust!", "Nincs kijelölés");
             return;
         }
 
@@ -289,12 +289,12 @@ public partial class MainWindow : Window
 
         if (kivalasztott.Autok.Count > 0)
         {
-            MessageBox.Show($"A(z) {kivalasztott.Marka} {kivalasztott.Modell} típushoz még {kivalasztott.Autok.Count} autó tartozik, ezért nem törölhető.\n\nElőbb törölje vagy módosítsa a hozzá tartozó autókat.",
+            App.Uzenet(this, $"A(z) {kivalasztott.Marka} {kivalasztott.Modell} típushoz még {kivalasztott.Autok.Count} autó tartozik, ezért nem törölhető.\n\nElőbb törölje vagy módosítsa a hozzá tartozó autókat.",
                             "A törlés nem lehetséges");
             return;
         }
 
-        if (MessageBox.Show($"Biztosan törli a(z) {kivalasztott.Marka} {kivalasztott.Modell} típust?",
+        if (App.Uzenet(this, $"Biztosan törli a(z) {kivalasztott.Marka} {kivalasztott.Modell} típust?",
                 "Törlés megerősítése", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             return;
 
@@ -368,7 +368,7 @@ public partial class MainWindow : Window
     {
         if (AutoDataGrid.SelectedItem is not Auto kivalasztott)
         {
-            MessageBox.Show("Válasszon ki egy autót!", "Nincs kijelölés");
+            App.Uzenet(this, "Válasszon ki egy autót!", "Nincs kijelölés");
             return;
         }
 
@@ -392,12 +392,12 @@ public partial class MainWindow : Window
 
         if (kivalasztott.Berlesek.Count > 0)
         {
-            MessageBox.Show($"Az autóhoz {kivalasztott.Berlesek.Count} bérlés tartozik, ezért nem törölhető.\n\nElőbb törölje a hozzá tartozó bérléseket.",
+            App.Uzenet(this, $"Az autóhoz {kivalasztott.Berlesek.Count} bérlés tartozik, ezért nem törölhető.\n\nElőbb törölje a hozzá tartozó bérléseket.",
                             "A törlés nem lehetséges");
             return;
         }
 
-        if (MessageBox.Show($"Biztosan törli a(z) {kivalasztott.Tipus.Marka} {kivalasztott.Tipus.Modell} autót (azonosító: {kivalasztott.AutoId})?",
+        if (App.Uzenet(this, $"Biztosan törli a(z) {kivalasztott.Tipus.Marka} {kivalasztott.Tipus.Modell} autót (azonosító: {kivalasztott.AutoId})?",
                 "Törlés megerősítése", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             return;
 
@@ -470,7 +470,7 @@ public partial class MainWindow : Window
     {
         if (BerloDataGrid.SelectedItem is not Berlo kivalasztott)
         {
-            MessageBox.Show("Válasszon ki egy bérlőt!", "Nincs kijelölés");
+            App.Uzenet(this, "Válasszon ki egy bérlőt!", "Nincs kijelölés");
             return;
         }
 
@@ -588,7 +588,7 @@ public partial class MainWindow : Window
             return false;
         }
 
-        MessageBox.Show(utkozes, "Ütköző bérlés");
+        App.Uzenet(this, utkozes, "Ütköző bérlés");
         return false;
     }
 
@@ -617,7 +617,7 @@ public partial class MainWindow : Window
     {
         if (BerlesDataGrid.SelectedItem is not Berles kivalasztott)
         {
-            MessageBox.Show("Válasszon ki egy bérlést!", "Nincs kijelölés");
+            App.Uzenet(this, "Válasszon ki egy bérlést!", "Nincs kijelölés");
             return;
         }
 
@@ -642,7 +642,7 @@ public partial class MainWindow : Window
         int darab = context.Berlesek.Count(b => b.BerloId == kivalasztott.BerloId);
         if (darab <= 1)
         {
-            MessageBox.Show($"Ez {kivalasztott.Berlo.Nev} egyetlen bérlése, ezért nem törölhető.\n\nHa a bérlőt is el szeretné távolítani, törölje a Bérlők fülön (ott a bérlései is törlődnek).",
+            App.Uzenet(this, $"Ez {kivalasztott.Berlo.Nev} egyetlen bérlése, ezért nem törölhető.\n\nHa a bérlőt is el szeretné távolítani, törölje a Bérlők fülön (ott a bérlései is törlődnek).",
                             "A törlés nem lehetséges");
             return;
         }

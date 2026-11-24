@@ -67,17 +67,17 @@ public partial class BerlesWindow : Window
     {
         if (BerloComboBox.SelectedItem is not Berlo berlo)
         {
-            MessageBox.Show("Válasszon bérlőt!", "Hibás adat");
+            App.Uzenet(this, "Válasszon bérlőt!", "Hibás adat");
             return;
         }
         if (AutoComboBox.SelectedItem is not Auto auto)
         {
-            MessageBox.Show("Válasszon autót!", "Hibás adat");
+            App.Uzenet(this, "Válasszon autót!", "Hibás adat");
             return;
         }
         if (KezdoDatePicker.SelectedDate is not DateTime kezdo)
         {
-            MessageBox.Show("A kezdő dátum megadása kötelező.", "Hibás adat");
+            App.Uzenet(this, "A kezdő dátum megadása kötelező.", "Hibás adat");
             return;
         }
 
@@ -89,7 +89,7 @@ public partial class BerlesWindow : Window
         {
             if (!int.TryParse(kmSzoveg, out int kmErtek))
             {
-                MessageBox.Show("A kilométer egész szám kell legyen.", "Hibás adat");
+                App.Uzenet(this, "A kilométer egész szám kell legyen.", "Hibás adat");
                 return;
             }
             km = kmErtek;
@@ -109,13 +109,13 @@ public partial class BerlesWindow : Window
 
         if (hiba != null)
         {
-            MessageBox.Show(hiba, "Hibás adat");
+            App.Uzenet(this, hiba, "Hibás adat");
             return;
         }
 
         if (meglevo == null && Berlo.KorEgyNapon(berlo.SzulDatum, kezdo) < Berlo.MinKor)
         {
-            MessageBox.Show($"A bérlőnek a bérlés kezdetén legalább {Berlo.MinKor} évesnek kell lennie.", "Hibás adat");
+            App.Uzenet(this, $"A bérlőnek a bérlés kezdetén legalább {Berlo.MinKor} évesnek kell lennie.", "Hibás adat");
             return;
         }
 
@@ -124,7 +124,7 @@ public partial class BerlesWindow : Window
             string? utkozes = BerlesEllenorzo.UtkozesHiba(context, berles, meglevo != null);
             if (utkozes != null)
             {
-                MessageBox.Show(utkozes, "Ütköző bérlés");
+                App.Uzenet(this, utkozes, "Ütköző bérlés");
                 return;
             }
         }

@@ -49,14 +49,14 @@ public partial class TipusWindow : Window
 
         if (marka == "" || modell == "")
         {
-            MessageBox.Show("A márka és a modell megadása kötelező.", "Hibás adat");
+            App.Uzenet(this, "A márka és a modell megadása kötelező.", "Hibás adat");
             return;
         }
 
         if (!int.TryParse(EvjaratTextBox.Text.Trim(), out int evjarat)
             || evjarat < 1950 || evjarat > DateTime.Today.Year + 1)
         {
-            MessageBox.Show($"Az évjárat 1950 és {DateTime.Today.Year + 1} közötti egész szám kell legyen.", "Hibás adat");
+            App.Uzenet(this, $"Az évjárat 1950 és {DateTime.Today.Year + 1} közötti egész szám kell legyen.", "Hibás adat");
             return;
         }
 
@@ -64,13 +64,13 @@ public partial class TipusWindow : Window
         if (!double.TryParse(szoveg, NumberStyles.Float, CultureInfo.InvariantCulture, out double fogyasztas)
             || fogyasztas <= 0 || fogyasztas > 50)
         {
-            MessageBox.Show("A fogyasztás 0 és 50 közötti szám kell legyen.", "Hibás adat");
+            App.Uzenet(this, "A fogyasztás 0 és 50 közötti szám kell legyen.", "Hibás adat");
             return;
         }
 
         if (UzemanyagComboBox.SelectedItem is not string uzemanyag)
         {
-            MessageBox.Show("Válasszon üzemanyagot!", "Hibás adat");
+            App.Uzenet(this, "Válasszon üzemanyagot!", "Hibás adat");
             return;
         }
 

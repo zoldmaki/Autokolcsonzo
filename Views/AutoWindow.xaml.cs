@@ -51,19 +51,19 @@ public partial class AutoWindow : Window
     {
         if (TipusComboBox.SelectedItem is not Tipus tipus)
         {
-            MessageBox.Show("Válasszon típust! Ha még nincs típus, előbb vegyen fel egyet a Típusok fülön.", "Hibás adat");
+            App.Uzenet(this, "Válasszon típust! Ha még nincs típus, előbb vegyen fel egyet a Típusok fülön.", "Hibás adat");
             return;
         }
 
         if (!int.TryParse(AlapKmTextBox.Text.Trim(), out int alapKm) || alapKm < 0)
         {
-            MessageBox.Show("Az alap km nulla vagy pozitív egész szám lehet.", "Hibás adat");
+            App.Uzenet(this, "Az alap km nulla vagy pozitív egész szám lehet.", "Hibás adat");
             return;
         }
 
         if (!int.TryParse(NapiArTextBox.Text.Trim(), out int napiAr) || napiAr <= 0 || napiAr > 1_000_000)
         {
-            MessageBox.Show("A napi ár 1 és 1 000 000 közötti egész szám kell legyen.", "Hibás adat");
+            App.Uzenet(this, "A napi ár 1 és 1 000 000 közötti egész szám kell legyen.", "Hibás adat");
             return;
         }
 

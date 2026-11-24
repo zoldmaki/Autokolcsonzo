@@ -44,12 +44,12 @@ public partial class VarosWindow : Window
 
         if (nev == "" || megye == "")
         {
-            MessageBox.Show("A név és a megye megadása kötelező.", "Hibás adat");
+            App.Uzenet(this, "A név és a megye megadása kötelező.", "Hibás adat");
             return;
         }
         if (iranySzam.Length != 4 || !iranySzam.All(char.IsDigit))
         {
-            MessageBox.Show("Az irányítószám pontosan 4 számjegy kell legyen.", "Hibás adat");
+            App.Uzenet(this, "Az irányítószám pontosan 4 számjegy kell legyen.", "Hibás adat");
             return;
         }
         
@@ -57,7 +57,7 @@ public partial class VarosWindow : Window
         bool foglalt = context.Varosok.Any(v => v.IranySzam == iranySzam && v.VarosId != Eredmeny.VarosId);
         if (foglalt)
         {
-            MessageBox.Show("Ez az irányítószám már szerepel az adatbázisban.", "Hibás adat");
+            App.Uzenet(this, "Ez az irányítószám már szerepel az adatbázisban.", "Hibás adat");
             return;
         }
 
