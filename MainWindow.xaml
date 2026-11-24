@@ -3,6 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Autókölcsönző" Height="550" Width="1150">
 
+    <Window.Resources>
+        <Style x:Key="SzuroMezo" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,12,8"/>
+        </Style>
+        <Style x:Key="SzuroCimke" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="SzuroSzoveg" TargetType="TextBox">
+            <Setter Property="Width" Value="112"/>
+            <Setter Property="MinHeight" Value="24"/>
+        </Style>
+        <Style x:Key="SzuroSzam" TargetType="TextBox" BasedOn="{StaticResource SzuroSzoveg}">
+            <Setter Property="Width" Value="68"/>
+        </Style>
+        <Style x:Key="SzuroDatum" TargetType="DatePicker">
+            <Setter Property="Width" Value="112"/>
+            <Setter Property="Language" Value="hu-HU"/>
+        </Style>
+        <Style x:Key="SzuroElvalaszto" TargetType="TextBlock">
+            <Setter Property="Text" Value="-"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
     <TabControl Margin="8" SelectionChanged="FoTabControl_SelectionChanged">
 
         <TabItem Header="Városok">
@@ -13,18 +38,33 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8" >
-                    <TextBlock Text="Szűrés:" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                    <TextBlock Text="Város:" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                    <TextBox x:Name="VarosNevFilterTextBox" Width="150" Margin="0,0,15,0"
-                             TextChanged="VarosFilterTextBox_TextChanged"/>
-                    <TextBlock Text="Irányítószám:" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                    <TextBox x:Name="VarosIranySzamFilterTextBox" Width="76" Margin="0,0,15,0"
-                             TextChanged="VarosFilterTextBox_TextChanged"/>
-                    <TextBlock Text="Megye:" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                    <TextBox x:Name="VarosMegyeFilterTextBox" Width="150"
-                             TextChanged="VarosFilterTextBox_TextChanged"/>
-                </StackPanel>
+                <WrapPanel Grid.Row="0" Margin="0,0,0,2">
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Város" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="VarosNevFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Város" TextChanged="VarosFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Irányítószám" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="VarosIranySzamFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Irányítószám" TextChanged="VarosFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Megye" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="VarosMegyeFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Megye" TextChanged="VarosFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Bérlők száma" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="VarosBerlokMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Bérlők száma, minimum" TextChanged="VarosFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="VarosBerlokMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Bérlők száma, maximum" TextChanged="VarosFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                </WrapPanel>
 
                 <DataGrid x:Name="VarosDataGrid" Grid.Row="1"
                           AutoGenerateColumns="False" IsReadOnly="True"
@@ -55,17 +95,53 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                    <TextBlock Text="Márka:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="TipusMarkaFilterTextBox" Width="130" Margin="0,0,16,0"
-                     TextChanged="TipusFilter_Changed"/>
-                    <TextBlock Text="Modell:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="TipusModellFilterTextBox" Width="130" Margin="0,0,16,0"
-                     TextChanged="TipusFilter_Changed"/>
-                    <TextBlock Text="Üzemanyag:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="TipusUzemanyagFilterComboBox" Width="120"
-                      SelectionChanged="TipusFilter_Changed"/>
-                </StackPanel>
+                <WrapPanel Grid.Row="0" Margin="0,0,0,2">
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Márka" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="TipusMarkaFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Márka" TextChanged="TipusFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Modell" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="TipusModellFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Modell" TextChanged="TipusFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Évjárat" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="TipusEvjaratMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Évjárat, minimum" TextChanged="TipusFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="TipusEvjaratMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Évjárat, maximum" TextChanged="TipusFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Fogyasztás (/100 km)" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="TipusFogyasztasMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Fogyasztás (/100 km), minimum" TextChanged="TipusFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="TipusFogyasztasMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Fogyasztás (/100 km), maximum" TextChanged="TipusFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Üzemanyag" Style="{StaticResource SzuroCimke}"/>
+                        <ComboBox x:Name="TipusUzemanyagFilterComboBox" Width="112" MinHeight="24"
+                                  AutomationProperties.Name="Üzemanyag" SelectionChanged="TipusFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Autók száma" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="TipusAutokMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Autók száma, minimum" TextChanged="TipusFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="TipusAutokMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Autók száma, maximum" TextChanged="TipusFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                </WrapPanel>
 
                 <DataGrid x:Name="TipusDataGrid" Grid.Row="1"
                   AutoGenerateColumns="False" IsReadOnly="True"
@@ -99,17 +175,68 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                    <TextBlock Text="Márka:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="AutoMarkaFilterTextBox" Width="120" Margin="0,0,16,0"
-                     TextChanged="AutoFilter_Changed"/>
-                    <TextBlock Text="Modell:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="AutoModellFilterTextBox" Width="120" Margin="0,0,16,0"
-                     TextChanged="AutoFilter_Changed"/>
-                    <TextBlock Text="Max. napi ár (Ft):" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="AutoMaxArFilterTextBox" Width="90"
-                     TextChanged="AutoFilter_Changed"/>
-                </StackPanel>
+                <WrapPanel Grid.Row="0" Margin="0,0,0,2">
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Márka" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="AutoMarkaFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Márka" TextChanged="AutoFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Modell" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="AutoModellFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Modell" TextChanged="AutoFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Évjárat" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="AutoEvjaratMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Évjárat, minimum" TextChanged="AutoFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="AutoEvjaratMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Évjárat, maximum" TextChanged="AutoFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Alap km" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="AutoAlapKmMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Alap km, minimum" TextChanged="AutoFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="AutoAlapKmMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Alap km, maximum" TextChanged="AutoFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Megtett km" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="AutoMegtettKmMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Megtett km, minimum" TextChanged="AutoFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="AutoMegtettKmMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Megtett km, maximum" TextChanged="AutoFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Napi ár (Ft)" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="AutoArMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Napi ár (Ft), minimum" TextChanged="AutoFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="AutoArMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Napi ár (Ft), maximum" TextChanged="AutoFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Bérlések száma" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="AutoBerlesekMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Bérlések száma, minimum" TextChanged="AutoFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="AutoBerlesekMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Bérlések száma, maximum" TextChanged="AutoFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                </WrapPanel>
 
                 <DataGrid x:Name="AutoDataGrid" Grid.Row="1"
                   AutoGenerateColumns="False" IsReadOnly="True"
@@ -144,14 +271,58 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                    <TextBlock Text="Név:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="BerloNevFilterTextBox" Width="160" Margin="0,0,16,0"
-                     TextChanged="BerloFilter_Changed"/>
-                    <TextBlock Text="Város:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="BerloVarosFilterTextBox" Width="140"
-                     TextChanged="BerloFilter_Changed"/>
-                </StackPanel>
+                <WrapPanel Grid.Row="0" Margin="0,0,0,2">
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Név" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerloNevFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Név" TextChanged="BerloFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Születési dátum" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <DatePicker x:Name="BerloSzulDatumMin" Style="{StaticResource SzuroDatum}"
+                                       AutomationProperties.Name="Születési dátum, ettől" SelectedDateChanged="BerloFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <DatePicker x:Name="BerloSzulDatumMax" Style="{StaticResource SzuroDatum}"
+                                       AutomationProperties.Name="Születési dátum, eddig" SelectedDateChanged="BerloFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Életkor" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="BerloEletkorMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Életkor, minimum" TextChanged="BerloFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="BerloEletkorMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Életkor, maximum" TextChanged="BerloFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Város" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerloVarosFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Város" TextChanged="BerloFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Utca" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerloUtcaFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Utca" TextChanged="BerloFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Házszám" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerloHazSzamFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Házszám" TextChanged="BerloFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Bérlések száma" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="BerloBerlesekMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Bérlések száma, minimum" TextChanged="BerloFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="BerloBerlesekMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Bérlések száma, maximum" TextChanged="BerloFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                </WrapPanel>
 
                 <DataGrid x:Name="BerloDataGrid" Grid.Row="1"
                   AutoGenerateColumns="False" IsReadOnly="True"
@@ -185,17 +356,83 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                    <TextBlock Text="Bérlő neve:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="BerlesBerloFilterTextBox" Width="140" Margin="0,0,16,0"
-                     TextChanged="BerlesFilter_Changed"/>
-                    <TextBlock Text="Autó (márka/modell):" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="BerlesAutoFilterTextBox" Width="140" Margin="0,0,16,0"
-                     TextChanged="BerlesFilter_Changed"/>
-                    <TextBlock Text="Állapot:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="BerlesAllapotFilterComboBox" Width="110"
-                      SelectionChanged="BerlesFilter_Changed"/>
-                </StackPanel>
+                <WrapPanel Grid.Row="0" Margin="0,0,0,2">
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Számla" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerlesSzamlaFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Számla" TextChanged="BerlesFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Bérlő" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerlesBerloFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Bérlő" TextChanged="BerlesFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Ár (Ft)" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="BerlesArMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Ár (Ft), minimum" TextChanged="BerlesFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="BerlesArMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Ár (Ft), maximum" TextChanged="BerlesFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Márka" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerlesMarkaFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Márka" TextChanged="BerlesFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Modell" Style="{StaticResource SzuroCimke}"/>
+                        <TextBox x:Name="BerlesModellFilterTextBox" Style="{StaticResource SzuroSzoveg}"
+                                 AutomationProperties.Name="Modell" TextChanged="BerlesFilter_Changed"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Kezdő dátum" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <DatePicker x:Name="BerlesKezdoDatumMin" Style="{StaticResource SzuroDatum}"
+                                       AutomationProperties.Name="Kezdő dátum, ettől" SelectedDateChanged="BerlesFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <DatePicker x:Name="BerlesKezdoDatumMax" Style="{StaticResource SzuroDatum}"
+                                       AutomationProperties.Name="Kezdő dátum, eddig" SelectedDateChanged="BerlesFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Vég dátum" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <DatePicker x:Name="BerlesVegDatumMin" Style="{StaticResource SzuroDatum}"
+                                       AutomationProperties.Name="Vég dátum, ettől" SelectedDateChanged="BerlesFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <DatePicker x:Name="BerlesVegDatumMax" Style="{StaticResource SzuroDatum}"
+                                       AutomationProperties.Name="Vég dátum, eddig" SelectedDateChanged="BerlesFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Km" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="BerlesKmMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Km, minimum" TextChanged="BerlesFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="BerlesKmMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Km, maximum" TextChanged="BerlesFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Hossz (nap)" Style="{StaticResource SzuroCimke}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="BerlesHosszMin" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Hossz (nap), minimum" TextChanged="BerlesFilter_Changed"/>
+                            <TextBlock Style="{StaticResource SzuroElvalaszto}"/>
+                            <TextBox x:Name="BerlesHosszMax" Style="{StaticResource SzuroSzam}"
+                                       AutomationProperties.Name="Hossz (nap), maximum" TextChanged="BerlesFilter_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource SzuroMezo}">
+                        <TextBlock Text="Állapot" Style="{StaticResource SzuroCimke}"/>
+                        <ComboBox x:Name="BerlesAllapotFilterComboBox" Width="112" MinHeight="24"
+                                  AutomationProperties.Name="Állapot" SelectionChanged="BerlesFilter_Changed"/>
+                    </StackPanel>
+                </WrapPanel>
 
                 <DataGrid x:Name="BerlesDataGrid" Grid.Row="1"
                   AutoGenerateColumns="False" IsReadOnly="True"

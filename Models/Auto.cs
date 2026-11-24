@@ -17,7 +17,7 @@ public class Auto
     public ICollection<Berles> Berlesek { get; set; } = new List<Berles>();
 
     [NotMapped]
-    public int MegtettKm => AlapKm + Berlesek.Sum(b => b.Km ?? 0);
+    public long MegtettKm => AlapKm + Berlesek.Sum(b => (long)(b.Km ?? 0));
 
     [NotMapped]
     public string Megnevezes => $"#{AutoId} – {Tipus?.Marka} {Tipus?.Modell}";

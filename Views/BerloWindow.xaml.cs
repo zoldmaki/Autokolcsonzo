@@ -35,8 +35,9 @@ public partial class BerloWindow : Window
 
             if (ujBerlo)
             {
-                ElsoAutoComboBox.ItemsSource = context.Autok
-                    .Include(a => a.Tipus).OrderBy(a => a.AutoId).ToList();
+                ElsoAutoComboBox.ItemsSource = BerlesEllenorzo.SzabadAutok(context)
+                    .Include(a => a.Tipus)
+                    .OrderBy(a => a.AutoId).ToList();
             }
         }
 
@@ -149,7 +150,7 @@ public partial class BerloWindow : Window
 
             using (var context = new AutoKolcsonzoContext())
             {
-                string? utkozes = BerlesEllenorzo.UtkozesHiba(context, auto.AutoId, kezdo, vegDatum);
+                string? utkozes = BerlesEllenorzo.UtkozesHiba(context, berles);
                 if (utkozes != null)
                 {
                     MessageBox.Show(utkozes, "Foglalt autó");

@@ -1,13 +1,9 @@
-﻿using System.Text;
+﻿using System.Data;
+using System.Globalization;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using Autokolcsonzo.Data;
 using Autokolcsonzo.Models;
@@ -25,7 +21,7 @@ public partial class MainWindow : Window
         TipusUzemanyagFilterComboBox.ItemsSource = new[] { "Összes" }.Concat(Tipus.Uzemanyagok).ToList();
         TipusUzemanyagFilterComboBox.SelectedIndex = 0;
 
-        BerlesAllapotFilterComboBox.ItemsSource = new[] { "Összes", "Folyamatban", "Lezárt" };
+        BerlesAllapotFilterComboBox.ItemsSource = new[] { "Összes", "Tervezett", "Folyamatban", "Lezárt" };
         BerlesAllapotFilterComboBox.SelectedIndex = 0;
 
         VarosokBetoltese();
@@ -55,12 +51,17 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            string uzenet = $"Hiba történt a(z) {mit} mentésekor:\n{ex.Message}";
-            if (ex.InnerException != null)
-                uzenet += $"\n\nRészletek: {ex.InnerException.Message}";   // one box instead of two
-            MessageBox.Show(uzenet, "Mentési hiba");
+            MentesiHibaMegjelenitese(mit, ex);
             return false;
         }
+    }
+
+    private static void MentesiHibaMegjelenitese(string mit, Exception ex)
+    {
+        string uzenet = $"Hiba történt a(z) {mit} mentésekor:\n{ex.Message}";
+        if (ex.InnerException != null)
+            uzenet += $"\n\nRészletek: {ex.InnerException.Message}";
+        MessageBox.Show(uzenet, "Mentési hiba");
     }
 
     private static bool SorraKattintottak(object sender, MouseButtonEventArgs e)
@@ -69,27 +70,71 @@ public partial class MainWindow : Window
         return ItemsControl.ContainerFromElement((DataGrid)sender, forras) is DataGridRow;
     }
 
+    private static Predicate<string?> SzovegSzuro(TextBox mezo)
+    {
+        string szuro = mezo.Text.Trim();
+        return ertek => szuro.Length == 0 || ertek?.Contains(szuro, StringComparison.CurrentCultureIgnoreCase) == true;
+    }
+
+    private static bool SzuroSzam<T>(TextBox mezo, out T? ertek) where T : struct, INumber<T>
+    {
+        string szoveg = mezo.Text.Trim();
+        ertek = null;
+        if (szoveg.Length == 0) return true;
+
+        if (!T.TryParse(szoveg.Replace(',', '.'), CultureInfo.InvariantCulture, out T szam) || !T.IsFinite(szam))
+            return false;
+
+        ertek = szam;
+        return true;
+    }
+
+    private static Predicate<T?> SzamSzuro<T>(TextBox minimum, TextBox maximum) where T : struct, INumber<T>
+    {
+        if (!SzuroSzam<T>(minimum, out var min) || !SzuroSzam<T>(maximum, out var max))
+            return _ => false;
+
+        return TartomanySzuro(min, max);
+    }
+
+    private static Predicate<T?> TartomanySzuro<T>(T? minimum, T? maximum) where T : struct, IComparable<T>
+    {
+        if (!minimum.HasValue && !maximum.HasValue) return _ => true;
+
+        return ertek => ertek is T adat
+            && (!minimum.HasValue || adat.CompareTo(minimum.Value) >= 0)
+            && (!maximum.HasValue || adat.CompareTo(maximum.Value) <= 0);
+    }
+
+    private static void SzuroAlkalmazasa<T>(DataGrid tabla, Predicate<T> szuro)
+    {
+        tabla.Items.Filter = sor => sor is T adat && szuro(adat);
+    }
+
     // ---------- VÁROSOK ----------
 
     private void VarosokBetoltese()
     {
         using var context = new AutoKolcsonzoContext();
-        string szuroVaros = VarosNevFilterTextBox.Text.Trim();
-        string szuroIranySzam = VarosIranySzamFilterTextBox.Text.Trim();
-        string szuroMegye = VarosMegyeFilterTextBox.Text.Trim();
-
-        IQueryable<Varos> lekerdezes = context.Varosok.Include(v => v.Berlok);
-
-        lekerdezes = lekerdezes.Where(v => (szuroVaros != "" ? v.Nev.Contains(szuroVaros) : true)
-                                        && (szuroIranySzam != "" ? v.IranySzam.Contains(szuroIranySzam) : true)
-                                        && (szuroMegye != "" ? v.Megye.Contains(szuroMegye) : true));
-
-        VarosDataGrid.ItemsSource = lekerdezes.OrderBy(v => v.VarosId).ToList();
+        VarosDataGrid.ItemsSource = context.Varosok
+            .Include(v => v.Berlok).OrderBy(v => v.VarosId).ToList();
+        VarosSzures();
     }
 
-    private void VarosFilterTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    private void VarosSzures()
     {
-        VarosokBetoltese();
+        var nev = SzovegSzuro(VarosNevFilterTextBox);
+        var iranySzam = SzovegSzuro(VarosIranySzamFilterTextBox);
+        var megye = SzovegSzuro(VarosMegyeFilterTextBox);
+        var berlok = SzamSzuro<int>(VarosBerlokMin, VarosBerlokMax);
+
+        SzuroAlkalmazasa<Varos>(VarosDataGrid, v =>
+            nev(v.Nev) && iranySzam(v.IranySzam) && megye(v.Megye) && berlok(v.Berlok.Count));
+    }
+
+    private void VarosFilter_Changed(object sender, RoutedEventArgs e)
+    {
+        if (IsLoaded) VarosSzures();
     }
 
     private void UjVaros_Click(object sender, RoutedEventArgs e)
@@ -127,7 +172,7 @@ public partial class MainWindow : Window
         if (ablak.ShowDialog() == true)
         {
             using var context = new AutoKolcsonzoContext();
-            context.Varosok.Add(ablak.Eredmeny);
+            context.Varosok.Update(ablak.Eredmeny);
             if (!MentesBiztonsagosan(context, "város")) return;
             VarosokBetoltese();
         }
@@ -169,27 +214,28 @@ public partial class MainWindow : Window
     private void TipusokBetoltese()
     {
         using var context = new AutoKolcsonzoContext();
+        TipusDataGrid.ItemsSource = context.Tipusok
+            .Include(t => t.Autok).OrderBy(t => t.TipusId).ToList();
+        TipusSzures();
+    }
 
-        string marka = TipusMarkaFilterTextBox.Text.Trim();
-        string modell = TipusModellFilterTextBox.Text.Trim();
+    private void TipusSzures()
+    {
+        var marka = SzovegSzuro(TipusMarkaFilterTextBox);
+        var modell = SzovegSzuro(TipusModellFilterTextBox);
+        var evjarat = SzamSzuro<int>(TipusEvjaratMin, TipusEvjaratMax);
+        var fogyasztas = SzamSzuro<double>(TipusFogyasztasMin, TipusFogyasztasMax);
+        var autok = SzamSzuro<int>(TipusAutokMin, TipusAutokMax);
         string? uzemanyag = TipusUzemanyagFilterComboBox.SelectedItem as string;
 
-        IQueryable<Tipus> lekerdezes = context.Tipusok.Include(t => t.Autok);
-
-        if (marka != "")
-            lekerdezes = lekerdezes.Where(t => t.Marka.Contains(marka));
-        if (modell != "")
-            lekerdezes = lekerdezes.Where(t => t.Modell.Contains(modell));
-        if (uzemanyag != null && uzemanyag != "Összes")
-            lekerdezes = lekerdezes.Where(t => t.Uzemanyag == uzemanyag);
-
-        TipusDataGrid.ItemsSource = lekerdezes.OrderBy(t => t.TipusId).ToList();
+        SzuroAlkalmazasa<Tipus>(TipusDataGrid, t => marka(t.Marka) && modell(t.Modell)
+            && evjarat(t.Evjarat) && fogyasztas(t.Fogyasztas) && autok(t.Autok.Count)
+            && (uzemanyag is null or "Összes" || t.Uzemanyag == uzemanyag));
     }
 
     private void TipusFilter_Changed(object sender, RoutedEventArgs e)
     {
-        if (!IsLoaded) return;
-        TipusokBetoltese();
+        if (IsLoaded) TipusSzures();
     }
 
     private void UjTipus_Click(object sender, RoutedEventArgs e)
@@ -227,7 +273,7 @@ public partial class MainWindow : Window
         if (ablak.ShowDialog() == true)
         {
             using var context = new AutoKolcsonzoContext();
-            context.Tipusok.Add(ablak.Eredmeny);
+            context.Tipusok.Update(ablak.Eredmeny);
             if (!MentesBiztonsagosan(context, "típus")) return;
             TipusokBetoltese();
         }
@@ -269,29 +315,30 @@ public partial class MainWindow : Window
     private void AutokBetoltese()
     {
         using var context = new AutoKolcsonzoContext();
-
-        string marka = AutoMarkaFilterTextBox.Text.Trim();
-        string modell = AutoModellFilterTextBox.Text.Trim();
-        string maxArSzoveg = AutoMaxArFilterTextBox.Text.Trim();
-
-        IQueryable<Auto> lekerdezes = context.Autok
+        AutoDataGrid.ItemsSource = context.Autok
             .Include(a => a.Tipus)
-            .Include(a => a.Berlesek);
+            .Include(a => a.Berlesek).OrderBy(a => a.AutoId).ToList();
+        AutoSzures();
+    }
 
-        if (marka != "")
-            lekerdezes = lekerdezes.Where(a => a.Tipus.Marka.Contains(marka));
-        if (modell != "")
-            lekerdezes = lekerdezes.Where(a => a.Tipus.Modell.Contains(modell));
-        if (int.TryParse(maxArSzoveg, out int maxAr))
-            lekerdezes = lekerdezes.Where(a => a.NapiAr <= maxAr);
+    private void AutoSzures()
+    {
+        var marka = SzovegSzuro(AutoMarkaFilterTextBox);
+        var modell = SzovegSzuro(AutoModellFilterTextBox);
+        var evjarat = SzamSzuro<int>(AutoEvjaratMin, AutoEvjaratMax);
+        var alapKm = SzamSzuro<int>(AutoAlapKmMin, AutoAlapKmMax);
+        var megtettKm = SzamSzuro<long>(AutoMegtettKmMin, AutoMegtettKmMax);
+        var ar = SzamSzuro<int>(AutoArMin, AutoArMax);
+        var berlesek = SzamSzuro<int>(AutoBerlesekMin, AutoBerlesekMax);
 
-        AutoDataGrid.ItemsSource = lekerdezes.OrderBy(a => a.AutoId).ToList();
+        SzuroAlkalmazasa<Auto>(AutoDataGrid, a => marka(a.Tipus.Marka) && modell(a.Tipus.Modell)
+            && evjarat(a.Tipus.Evjarat) && alapKm(a.AlapKm) && megtettKm(a.MegtettKm)
+            && ar(a.NapiAr) && berlesek(a.Berlesek.Count));
     }
 
     private void AutoFilter_Changed(object sender, RoutedEventArgs e)
     {
-        if (!IsLoaded) return;
-        AutokBetoltese();
+        if (IsLoaded) AutoSzures();
     }
 
     private void UjAuto_Click(object sender, RoutedEventArgs e)
@@ -372,26 +419,30 @@ public partial class MainWindow : Window
     private void BerlokBetoltese()
     {
         using var context = new AutoKolcsonzoContext();
-
-        string nev = BerloNevFilterTextBox.Text.Trim();
-        string varos = BerloVarosFilterTextBox.Text.Trim();
-
-        IQueryable<Berlo> lekerdezes = context.Berlok
+        BerloDataGrid.ItemsSource = context.Berlok
             .Include(b => b.Varos)
-            .Include(b => b.Berlesek);
+            .Include(b => b.Berlesek).OrderBy(b => b.BerloId).ToList();
+        BerloSzures();
+    }
 
-        if (nev != "")
-            lekerdezes = lekerdezes.Where(b => b.Nev.Contains(nev));
-        if (varos != "")
-            lekerdezes = lekerdezes.Where(b => b.Varos != null && b.Varos.Nev.Contains(varos));
+    private void BerloSzures()
+    {
+        var nev = SzovegSzuro(BerloNevFilterTextBox);
+        var szulDatum = TartomanySzuro(BerloSzulDatumMin.SelectedDate, BerloSzulDatumMax.SelectedDate);
+        var eletkor = SzamSzuro<int>(BerloEletkorMin, BerloEletkorMax);
+        var varos = SzovegSzuro(BerloVarosFilterTextBox);
+        var utca = SzovegSzuro(BerloUtcaFilterTextBox);
+        var hazSzam = SzovegSzuro(BerloHazSzamFilterTextBox);
+        var berlesek = SzamSzuro<int>(BerloBerlesekMin, BerloBerlesekMax);
 
-        BerloDataGrid.ItemsSource = lekerdezes.OrderBy(b => b.BerloId).ToList();
+        SzuroAlkalmazasa<Berlo>(BerloDataGrid, b => nev(b.Nev) && szulDatum(b.SzulDatum.Date)
+            && eletkor(b.Eletkor) && varos(b.Varos?.Nev) && utca(b.UtcaNev)
+            && hazSzam(b.HazSzam) && berlesek(b.Berlesek.Count));
     }
 
     private void BerloFilter_Changed(object sender, RoutedEventArgs e)
     {
-        if (!IsLoaded) return;
-        BerlokBetoltese();
+        if (IsLoaded) BerloSzures();
     }
 
     private void UjBerlo_Click(object sender, RoutedEventArgs e)
@@ -399,14 +450,7 @@ public partial class MainWindow : Window
         var ablak = new BerloWindow() { Owner = this };
         if (ablak.ShowDialog() == true)
         {
-            using var context = new AutoKolcsonzoContext();
-
-            var elsoBerles = ablak.ElsoBerles!;                    // always filled in "new" mode
-            elsoBerles.Szamla = SzamlaGenerator.Uj(context);
-            ablak.Eredmeny.Berlesek.Add(elsoBerles);               // link the rental to the new renter
-            context.Berlok.Add(ablak.Eredmeny);                    // adds the renter AND the rental
-
-            if (!MentesBiztonsagosan(context, "bérlő")) return;    // one SaveChanges = one transaction
+            if (!BerlesMentese(ablak.ElsoBerles!, ujBerlo: ablak.Eredmeny)) return;
             BerlokBetoltese();
         }
     }
@@ -469,37 +513,83 @@ public partial class MainWindow : Window
 
 
 
-        // ---------- BÉRLÉSEK ----------
+    // ---------- BÉRLÉSEK ----------
 
-private void BerlesekBetoltese()
+    private void BerlesekBetoltese()
     {
         using var context = new AutoKolcsonzoContext();
+        BerlesDataGrid.ItemsSource = context.Berlesek
+            .Include(b => b.Berlo)
+            .Include(b => b.Auto).ThenInclude(a => a.Tipus)
+            .OrderByDescending(b => b.KezdoDatum).ToList();
+        BerlesSzures();
+    }
 
-        string berlo = BerlesBerloFilterTextBox.Text.Trim();
-        string auto = BerlesAutoFilterTextBox.Text.Trim();
+    private void BerlesSzures()
+    {
+        var szamla = SzovegSzuro(BerlesSzamlaFilterTextBox);
+        var berlo = SzovegSzuro(BerlesBerloFilterTextBox);
+        var ar = SzamSzuro<long>(BerlesArMin, BerlesArMax);
+        var marka = SzovegSzuro(BerlesMarkaFilterTextBox);
+        var modell = SzovegSzuro(BerlesModellFilterTextBox);
+        var kezdoDatum = TartomanySzuro(BerlesKezdoDatumMin.SelectedDate, BerlesKezdoDatumMax.SelectedDate);
+        var vegDatum = TartomanySzuro(BerlesVegDatumMin.SelectedDate, BerlesVegDatumMax.SelectedDate);
+        var km = SzamSzuro<int>(BerlesKmMin, BerlesKmMax);
+        var hossz = SzamSzuro<int>(BerlesHosszMin, BerlesHosszMax);
         string? allapot = BerlesAllapotFilterComboBox.SelectedItem as string;
 
-        IQueryable<Berles> lekerdezes = context.Berlesek
-            .Include(b => b.Berlo)
-            .Include(b => b.Auto).ThenInclude(a => a.Tipus);
-
-        if (berlo != "")
-            lekerdezes = lekerdezes.Where(b => b.Berlo.Nev.Contains(berlo));
-        if (auto != "")
-            lekerdezes = lekerdezes.Where(b => b.Auto.Tipus.Marka.Contains(auto)
-                                            || b.Auto.Tipus.Modell.Contains(auto));
-        if (allapot == "Folyamatban")
-            lekerdezes = lekerdezes.Where(b => b.VegDatum == null);
-        else if (allapot == "Lezárt")
-            lekerdezes = lekerdezes.Where(b => b.VegDatum != null);
-
-        BerlesDataGrid.ItemsSource = lekerdezes.OrderByDescending(b => b.KezdoDatum).ToList();
+        SzuroAlkalmazasa<Berles>(BerlesDataGrid, b => szamla(b.Szamla) && berlo(b.Berlo.Nev) && ar(b.Ar)
+            && marka(b.Auto.Tipus.Marka) && modell(b.Auto.Tipus.Modell)
+            && kezdoDatum(b.KezdoDatum.Date) && vegDatum(b.VegDatum?.Date) && km(b.Km) && hossz(b.Hossz)
+            && (allapot is null or "Összes" || b.Allapot == allapot));
     }
 
     private void BerlesFilter_Changed(object sender, RoutedEventArgs e)
     {
-        if (!IsLoaded) return;
-        BerlesekBetoltese();
+        if (IsLoaded) BerlesSzures();
+    }
+
+    private bool BerlesMentese(Berles berles, bool szerkesztes = false, Berlo? ujBerlo = null)
+    {
+        string? utkozes;
+        try
+        {
+            using var context = new AutoKolcsonzoContext();
+            using var tranzakcio = context.Database.BeginTransaction(IsolationLevel.Serializable);
+            utkozes = BerlesEllenorzo.UtkozesHiba(context, berles, szerkesztes);
+            if (utkozes == null)
+            {
+                if (szerkesztes)
+                {
+                    context.Berlesek.Update(berles);
+                }
+                else
+                {
+                    berles.Szamla = SzamlaGenerator.Uj(context);
+                    if (ujBerlo == null)
+                    {
+                        context.Berlesek.Add(berles);
+                    }
+                    else
+                    {
+                        ujBerlo.Berlesek.Add(berles);
+                        context.Berlok.Add(ujBerlo);
+                    }
+                }
+
+                context.SaveChanges();
+                tranzakcio.Commit();
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MentesiHibaMegjelenitese(ujBerlo != null ? "bérlő" : "bérlés", ex);
+            return false;
+        }
+
+        MessageBox.Show(utkozes, "Ütköző bérlés");
+        return false;
     }
 
     private void UjBerles_Click(object sender, RoutedEventArgs e)
@@ -507,10 +597,7 @@ private void BerlesekBetoltese()
         var ablak = new BerlesWindow() { Owner = this };
         if (ablak.ShowDialog() == true)
         {
-            using var context = new AutoKolcsonzoContext();
-            ablak.Eredmeny.Szamla = SzamlaGenerator.Uj(context);
-            context.Berlesek.Add(ablak.Eredmeny);
-            if (!MentesBiztonsagosan(context, "bérlés")) return;
+            if (!BerlesMentese(ablak.Eredmeny)) return;
             BerlesekBetoltese();
         }
     }
@@ -537,9 +624,7 @@ private void BerlesekBetoltese()
         var ablak = new BerlesWindow(kivalasztott) { Owner = this };
         if (ablak.ShowDialog() == true)
         {
-            using var context = new AutoKolcsonzoContext();
-            context.Berlesek.Update(ablak.Eredmeny);
-            if (!MentesBiztonsagosan(context, "bérlés")) return;
+            if (!BerlesMentese(ablak.Eredmeny, szerkesztes: true)) return;
             BerlesekBetoltese();
         }
     }

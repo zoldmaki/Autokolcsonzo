@@ -55,9 +55,9 @@ public partial class AutoWindow : Window
             return;
         }
 
-        if (!int.TryParse(AlapKmTextBox.Text.Trim(), out int alapKm) || alapKm < 0 || alapKm > 2_000_000)
+        if (!int.TryParse(AlapKmTextBox.Text.Trim(), out int alapKm) || alapKm < 0)
         {
-            MessageBox.Show("Az alap km 0 és 2 000 000 közötti egész szám kell legyen.", "Hibás adat");
+            MessageBox.Show("Az alap km nulla vagy pozitív egész szám lehet.", "Hibás adat");
             return;
         }
 

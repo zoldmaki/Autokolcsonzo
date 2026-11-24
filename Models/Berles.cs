@@ -22,7 +22,7 @@ public class Berles
     public int? Hossz => VegDatum.HasValue ? (VegDatum.Value - KezdoDatum).Days : null;
 
     [NotMapped]
-    public int? Ar => Hossz.HasValue ? Hossz.Value * Auto.NapiAr : null;
+    public long? Ar => Hossz is int napok ? (long)napok * Auto.NapiAr : null;
 
     public string? Ellenorzes()
     {
@@ -42,5 +42,6 @@ public class Berles
     }
 
     [NotMapped]
-    public string Allapot => VegDatum.HasValue ? "Lezárt" : "Folyamatban";
+    public string Allapot => KezdoDatum.Date > DateTime.Today ? "Tervezett"
+        : VegDatum?.Date < DateTime.Today ? "Lezárt" : "Folyamatban";
 }

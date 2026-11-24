@@ -1,36 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Autokolcsonzo.Models;
+﻿using Autokolcsonzo.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Autokolcsonzo.Data;
 
 public static class BerlesEllenorzo
-{    
-    public static string? UtkozesHiba(AutoKolcsonzoContext context, int autoId,
-                                      DateTime kezdo, DateTime? veg, Berles? kiveve = null)
+{
+    private static IQueryable<Berles> AktualisBerlesek(AutoKolcsonzoContext context)
     {
-        DateTime ujKezdo = kezdo.Date;
-        DateTime ujVeg = veg?.Date ?? DateTime.MaxValue;
+        DateTime ma = DateTime.Today;
+        return context.Berlesek.Where(b => b.KezdoDatum <= ma && (b.VegDatum == null || b.VegDatum >= ma));
+    }
 
-        var masok = context.Berlesek.Include(b => b.Berlo).Where(b => b.AutoId == autoId).ToList();
+    public static IQueryable<Auto> SzabadAutok(AutoKolcsonzoContext context)
+    {
+        var aktualis = AktualisBerlesek(context);
+        return context.Autok.Where(a => !aktualis.Any(b => b.AutoId == a.AutoId));
+    }
 
-        foreach (var b in masok)
+    public static IQueryable<Berlo> SzabadBerlok(AutoKolcsonzoContext context)
+    {
+        var aktualis = AktualisBerlesek(context);
+        return context.Berlok.Where(r => !aktualis.Any(b => b.BerloId == r.BerloId));
+    }
+
+    public static string? UtkozesHiba(AutoKolcsonzoContext context, Berles berles, bool szerkesztes = false)
+    {
+        int autoId = berles.AutoId;
+        int berloId = berles.BerloId;
+        DateTime kezdo = berles.KezdoDatum.Date;
+        DateTime veg = berles.VegDatum?.Date ?? DateTime.MaxValue.Date;
+
+        if (!szerkesztes)
         {
-            if (kiveve != null && b.KezdoDatum == kiveve.KezdoDatum && b.BerloId == kiveve.BerloId)
-                continue;
-
-            DateTime bVeg = b.VegDatum?.Date ?? DateTime.MaxValue;
-           
-            if (ujKezdo <= bVeg && b.KezdoDatum.Date <= ujVeg)
-            {
-                string idoszak = b.VegDatum.HasValue
-                    ? $"{b.KezdoDatum:yyyy.MM.dd} – {b.VegDatum:yyyy.MM.dd}"
-                    : $"{b.KezdoDatum:yyyy.MM.dd} – (folyamatban)";
-                return $"Az autó ebben az időszakban már foglalt: {b.Berlo.Nev}, {idoszak}.";
-            }
+            var aktualis = AktualisBerlesek(context)
+                .Where(b => b.AutoId == autoId || b.BerloId == berloId)
+                .OrderByDescending(b => b.AutoId == autoId)
+                .FirstOrDefault();
+            if (aktualis != null)
+                return aktualis.AutoId == autoId
+                    ? "A kiválasztott autó jelenleg bérlés alatt van."
+                    : "A kiválasztott bérlőnek jelenleg folyamatban van egy bérlése.";
         }
-        return null;
+
+        var masok = context.Berlesek.Where(b => b.AutoId == autoId || b.BerloId == berloId);
+        if (szerkesztes)
+            masok = masok.Where(b => b.KezdoDatum != kezdo || b.AutoId != autoId || b.BerloId != berloId);
+
+        var utkozes = masok
+            .Include(b => b.Berlo)
+            .Where(b => b.KezdoDatum <= veg && (b.VegDatum == null || b.VegDatum >= kezdo))
+            .OrderByDescending(b => b.AutoId == autoId)
+            .ThenBy(b => b.KezdoDatum)
+            .FirstOrDefault();
+        if (utkozes == null) return null;
+
+        string idoszak = utkozes.VegDatum.HasValue
+            ? $"{utkozes.KezdoDatum:yyyy.MM.dd} – {utkozes.VegDatum:yyyy.MM.dd}"
+            : $"{utkozes.KezdoDatum:yyyy.MM.dd}-tól";
+        return utkozes.AutoId == autoId
+            ? $"Az autó ebben az időszakban már foglalt: {utkozes.Berlo.Nev}, {idoszak}."
+            : $"A bérlőnek ebben az időszakban már van bérlése: {idoszak}.";
     }
 }

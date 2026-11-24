@@ -25,14 +25,13 @@ public partial class BerlesWindow : Window
         InitializeComponent();
         this.meglevo = meglevo;
 
-        using (var context = new AutoKolcsonzoContext())
-        {
-            BerloComboBox.ItemsSource = context.Berlok.OrderBy(b => b.Nev).ToList();
-            AutoComboBox.ItemsSource = context.Autok.Include(a => a.Tipus).OrderBy(a => a.AutoId).ToList();
-        }
-
         if (meglevo == null)
         {
+            using var context = new AutoKolcsonzoContext();
+            BerloComboBox.ItemsSource = BerlesEllenorzo.SzabadBerlok(context).OrderBy(b => b.Nev).ToList();
+            AutoComboBox.ItemsSource = BerlesEllenorzo.SzabadAutok(context).Include(a => a.Tipus)
+                .OrderBy(a => a.AutoId).ToList();
+
             Title = "Új bérlés";
             KezdoDatePicker.SelectedDate = DateTime.Today;
         }
@@ -40,10 +39,10 @@ public partial class BerlesWindow : Window
         {
             Title = "Bérlés szerkesztése";
 
-            BerloComboBox.SelectedItem = ((IEnumerable<Berlo>)BerloComboBox.ItemsSource)
-                .FirstOrDefault(b => b.BerloId == meglevo.BerloId);
-            AutoComboBox.SelectedItem = ((IEnumerable<Auto>)AutoComboBox.ItemsSource)
-                .FirstOrDefault(a => a.AutoId == meglevo.AutoId);
+            BerloComboBox.ItemsSource = new[] { meglevo.Berlo };
+            BerloComboBox.SelectedIndex = 0;
+            AutoComboBox.ItemsSource = new[] { meglevo.Auto };
+            AutoComboBox.SelectedIndex = 0;
             KezdoDatePicker.SelectedDate = meglevo.KezdoDatum;
 
             BerloComboBox.IsEnabled = false;
@@ -122,10 +121,10 @@ public partial class BerlesWindow : Window
 
         using (var context = new AutoKolcsonzoContext())
         {
-            string? utkozes = BerlesEllenorzo.UtkozesHiba(context, auto.AutoId, kezdo, veg, meglevo);
+            string? utkozes = BerlesEllenorzo.UtkozesHiba(context, berles, meglevo != null);
             if (utkozes != null)
             {
-                MessageBox.Show(utkozes, "Foglalt autó");
+                MessageBox.Show(utkozes, "Ütköző bérlés");
                 return;
             }
         }
