@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using Autokolcsonzo.Models;
@@ -18,9 +19,12 @@ public class AutoKolcsonzoContext : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        const string beallitasFajl = "appsetting.json";
+        string fajl = File.Exists(Path.Combine(AppContext.BaseDirectory, beallitasFajl))
+            ? beallitasFajl : "appsettings.json";
         var config = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)      
-            .AddJsonFile("appsettings.json")
+            .AddJsonFile(fajl)
             .Build();
 
         optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));

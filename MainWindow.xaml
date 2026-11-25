@@ -750,6 +750,63 @@
                     </Grid>
                 </TabItem>
 
+                <TabItem x:Name="OsszesAdatTab" Header="Összes adat" Tag="{StaticResource TableIcon}">
+                    <Grid Margin="24,18,20,16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Összes adat" Style="{StaticResource WorkspaceTitle}"/>
+                            <TextBlock Margin="0,4,0,0" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
+                                       Text="Bérlések és kapcsolódó adataik. A kapcsolat nélküli rekordok önálló sorban szerepelnek."/>
+                        </StackPanel>
+
+                        <DataGrid Grid.Row="1" x:Name="OsszesAdatDataGrid" AutomationProperties.Name="Az összes tárolt adat"
+                                  AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto" EnableColumnVirtualization="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Rekord" Binding="{Binding Forras}" Width="90" CanUserReorder="False"/>
+                                <DataGridTextColumn Header="Számla" Binding="{Binding Berles.Szamla}" Width="115"/>
+                                <DataGridTextColumn Header="Kezdő dátum" Binding="{Binding Berles.KezdoDatum, StringFormat=yyyy.MM.dd.}" Width="108"/>
+                                <DataGridTextColumn Header="Vég dátum" Binding="{Binding Berles.VegDatum, StringFormat=yyyy.MM.dd.}" Width="108"/>
+                                <DataGridTextColumn Header="Bérlés km" Binding="{Binding Berles.Km, StringFormat=N0, ConverterCulture=hu-HU}" Width="100"/>
+                                <DataGridTextColumn Header="Hossz (nap)" Binding="{Binding Berles.Hossz}" Width="102"/>
+                                <DataGridTextColumn Header="Bérlés ára (Ft)" Binding="{Binding Berles.Ar, StringFormat=N0, ConverterCulture=hu-HU}" Width="113"/>
+                                <DataGridTextColumn Header="Állapot" Binding="{Binding Berles.Allapot}" Width="110"/>
+
+                                <DataGridTextColumn Header="Bérlő ID" Binding="{Binding Berlo.BerloId}" Width="88"/>
+                                <DataGridTextColumn Header="Bérlő neve" Binding="{Binding Berlo.Nev}" Width="155"/>
+                                <DataGridTextColumn Header="Születési dátum" Binding="{Binding Berlo.SzulDatum, StringFormat=yyyy.MM.dd.}" Width="135"/>
+                                <DataGridTextColumn Header="Életkor" Binding="{Binding Berlo.Eletkor}" Width="84"/>
+                                <DataGridTextColumn Header="Utca" Binding="{Binding Berlo.UtcaNev}" Width="155"/>
+                                <DataGridTextColumn Header="Házszám" Binding="{Binding Berlo.HazSzam}" Width="90"/>
+
+                                <DataGridTextColumn Header="Város ID" Binding="{Binding Varos.VarosId}" Width="91"/>
+                                <DataGridTextColumn Header="Város neve" Binding="{Binding Varos.Nev}" Width="140"/>
+                                <DataGridTextColumn Header="Irányítószám" Binding="{Binding Varos.IranySzam}" Width="113"/>
+                                <DataGridTextColumn Header="Megye" Binding="{Binding Varos.Megye}" Width="190"/>
+
+                                <DataGridTextColumn Header="Autó ID" Binding="{Binding Auto.AutoId}" Width="84"/>
+                                <DataGridTextColumn Header="Alap km" Binding="{Binding Auto.AlapKm, StringFormat=N0, ConverterCulture=hu-HU}" Width="100"/>
+                                <DataGridTextColumn Header="Megtett km" Binding="{Binding Auto.MegtettKm, StringFormat=N0, ConverterCulture=hu-HU}" Width="108"/>
+                                <DataGridTextColumn Header="Napi ár (Ft)" Binding="{Binding Auto.NapiAr, StringFormat=N0, ConverterCulture=hu-HU}" Width="106"/>
+
+                                <DataGridTextColumn Header="Típus ID" Binding="{Binding Tipus.TipusId}" Width="91"/>
+                                <DataGridTextColumn Header="Márka" Binding="{Binding Tipus.Marka}" Width="124"/>
+                                <DataGridTextColumn Header="Modell" Binding="{Binding Tipus.Modell}" Width="135"/>
+                                <DataGridTextColumn Header="Évjárat" Binding="{Binding Tipus.Evjarat}" Width="84"/>
+                                <DataGridTextColumn Header="Fogyasztás (/100 km)" Binding="{Binding Tipus.Fogyasztas, ConverterCulture=hu-HU}" Width="159"/>
+                                <DataGridTextColumn Header="Üzemanyag" Binding="{Binding Tipus.Uzemanyag}" Width="111"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Grid.Row="2" Margin="0,12,0,0" Foreground="{StaticResource MutedBrush}" FontSize="12"
+                                   Text="{Binding Items.Count, ElementName=OsszesAdatDataGrid, StringFormat={}{0} sor}"/>
+                    </Grid>
+                </TabItem>
             </TabControl>
         </DockPanel>
     </Border>

@@ -83,11 +83,31 @@ public partial class MainWindow : Window
     {
         if (e.OriginalSource != sender || !IsLoaded) return;
 
+        if (WorkspaceTabs.SelectedItem == OsszesAdatTab)
+        {
+            OsszesAdatokBetoltese();
+            return;
+        }
+
         VarosokBetoltese();
         TipusokBetoltese();
         AutokBetoltese();
         BerlokBetoltese();
         BerlesekBetoltese();
+    }
+
+    private void OsszesAdatokBetoltese()
+    {
+        using var context = new AutoKolcsonzoContext();
+        try
+        {
+            OsszesAdatDataGrid.ItemsSource = OsszesAdatok.Betolt(context);
+        }
+        catch (Exception ex)
+        {
+            OsszesAdatDataGrid.ItemsSource = null;
+            App.Uzenet(this, "Az összesített adatokat nem sikerült betölteni.\n\n" + ex.Message, "Betöltési hiba");
+        }
     }
 
     private bool MentesBiztonsagosan(AutoKolcsonzoContext context, string mit)
